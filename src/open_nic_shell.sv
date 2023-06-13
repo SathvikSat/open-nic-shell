@@ -47,6 +47,14 @@ module open_nic_shell #(
   input                          pcie_refclk_n,
   input                          pcie_rstn,
 
+  // TODO: 1* NUM_XXV_PORT ?
+  input    [1*NUM_XXV_PORT-1:0] qsfp_rxp,
+  input    [1*NUM_XXV_PORT-1:0] qsfp_rxn,
+  output   [1*NUM_XXV_PORT-1:0] qsfp_txp,
+  output   [1*NUM_XXV_PORT-1:0] qsfp_txn,
+  input      [NUM_XXV_PORT-1:0] qsfp_refclk_p,
+  input      [NUM_XXV_PORT-1:0] qsfp_refclk_n
+
   input    [4*NUM_CMAC_PORT-1:0] qsfp_rxp,
   input    [4*NUM_CMAC_PORT-1:0] qsfp_rxn,
   output   [4*NUM_CMAC_PORT-1:0] qsfp_txp,
@@ -150,9 +158,15 @@ module open_nic_shell #(
     if (NUM_CMAC_PORT > 2 || NUM_CMAC_PORT < 1) begin
       $fatal("[%m] Number of CMACs should be within the range [1, 2]");
     end
+
+    //TODO: range of XXVs?
+    if (NUM_XXV_PORT > 2 || NUM_XXV_PORT < 1) begin
+      $fatal("[%m] Number of XXVs should be within the range [1, 2]");
+    end
   end
 
 `ifdef __synthesis__
+  //TODO: what are these 3 signals exactly?
   wire         powerup_rstn;
   wire         pcie_user_lnk_up;
   wire         pcie_phy_ready;
@@ -230,7 +244,25 @@ module open_nic_shell #(
   wire   [2*NUM_CMAC_PORT-1:0] axil_adap_rresp;
   wire     [NUM_CMAC_PORT-1:0] axil_adap_rready;
 
+  wire     [NUM_XXV_PORT-1:0] axil_adap_awvalid;
+  wire  [32*NUM_XXV_PORT-1:0] axil_adap_awaddr;
+  wire     [NUM_XXV_PORT-1:0] axil_adap_awready;
+  wire     [NUM_XXV_PORT-1:0] axil_adap_wvalid;
+  wire  [32*NUM_XXV_PORT-1:0] axil_adap_wdata;
+  wire     [NUM_XXV_PORT-1:0] axil_adap_wready;
+  wire     [NUM_XXV_PORT-1:0] axil_adap_bvalid;
+  wire   [2*NUM_XXV_PORT-1:0] axil_adap_bresp;
+  wire     [NUM_XXV_PORT-1:0] axil_adap_bready;
+  wire     [NUM_XXV_PORT-1:0] axil_adap_arvalid;
+  wire  [32*NUM_XXV_PORT-1:0] axil_adap_araddr;
+  wire     [NUM_XXV_PORT-1:0] axil_adap_arready;
+  wire     [NUM_XXV_PORT-1:0] axil_adap_rvalid;
+  wire  [32*NUM_XXV_PORT-1:0] axil_adap_rdata;
+  wire   [2*NUM_XXV_PORT-1:0] axil_adap_rresp;
+  wire     [NUM_XXV_PORT-1:0] axil_adap_rready;
+
   wire     [NUM_CMAC_PORT-1:0] axil_cmac_awvalid;
+  //wire  [32*NUM_CMAC_PORT-1:0] axil_xxv_awaddr;
   wire  [32*NUM_CMAC_PORT-1:0] axil_cmac_awaddr;
   wire     [NUM_CMAC_PORT-1:0] axil_cmac_awready;
   wire     [NUM_CMAC_PORT-1:0] axil_cmac_wvalid;
@@ -246,6 +278,24 @@ module open_nic_shell #(
   wire  [32*NUM_CMAC_PORT-1:0] axil_cmac_rdata;
   wire   [2*NUM_CMAC_PORT-1:0] axil_cmac_rresp;
   wire     [NUM_CMAC_PORT-1:0] axil_cmac_rready;
+
+  wire     [NUM_XXV_PORT-1:0] axil_xxv_awvalid;
+  //wire  [32*NUM_CMAC_PORT-1:0] axil_xxv_awaddr;
+  wire  [32*NUM_XXV_PORT-1:0] axil_xxv_awaddr;
+  wire     [NUM_XXV_PORT-1:0] axil_xxv_awready;
+  wire     [NUM_XXV_PORT-1:0] axil_xxv_wvalid;
+  wire  [32*NUM_XXV_PORT-1:0] axil_xxv_wdata;
+  wire     [NUM_XXV_PORT-1:0] axil_xxv_wready;
+  wire     [NUM_XXV_PORT-1:0] axil_xxv_bvalid;
+  wire   [2*NUM_XXV_PORT-1:0] axil_xxv_bresp;
+  wire     [NUM_XXV_PORT-1:0] axil_xxv_bready;
+  wire     [NUM_XXV_PORT-1:0] axil_xxv_arvalid;
+  wire  [32*NUM_XXV_PORT-1:0] axil_xxv_araddr;
+  wire     [NUM_XXV_PORT-1:0] axil_xxv_arready;
+  wire     [NUM_XXV_PORT-1:0] axil_xxv_rvalid;
+  wire  [32*NUM_XXV_PORT-1:0] axil_xxv_rdata;
+  wire   [2*NUM_XXV_PORT-1:0] axil_xxv_rresp;
+  wire     [NUM_XXV_PORT-1:0] axil_xxv_rready;
 
   wire                         axil_box0_awvalid;
   wire                  [31:0] axil_box0_awaddr;
@@ -576,7 +626,7 @@ module open_nic_shell #(
     .s_axil_rresp                         (axil_qdma_rresp),
     .s_axil_rready                        (axil_qdma_rready),
 
-    .m_axis_h2c_tvalid                    (axis_qdma_h2c_tvalid),
+    .m_axis_h2c_tvalid                    (axis_qdma_h2c_tvalid), //outpit
     .m_axis_h2c_tdata                     (axis_qdma_h2c_tdata),
     .m_axis_h2c_tkeep                     (axis_qdma_h2c_tkeep),
     .m_axis_h2c_tlast                     (axis_qdma_h2c_tlast),

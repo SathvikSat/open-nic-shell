@@ -21,7 +21,8 @@ module box_250mhz #(
   parameter int MAX_PKT_LEN   = 1518,
   parameter int USE_PHYS_FUNC = 1,
   parameter int NUM_PHYS_FUNC = 1,
-  parameter int NUM_CMAC_PORT = 1
+  parameter int NUM_CMAC_PORT = 1,
+  parameter int NUM_XXV_PORT  = 1
 ) (
   input                          s_axil_awvalid,
   input                   [31:0] s_axil_awaddr,
