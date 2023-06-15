@@ -18,7 +18,8 @@
 `include "open_nic_shell_macros.vh"
 `timescale 1ns/1ps
 module p2p_322mhz #(
-  parameter int NUM_CMAC_PORT = 1
+  parameter int NUM_CMAC_PORT = 1,
+  parameter int NUM_XXV_PORT  = 1
 ) (
   input                          s_axil_awvalid,
   input                   [31:0] s_axil_awaddr,

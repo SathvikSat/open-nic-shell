@@ -31,6 +31,8 @@
 // regions with relaxed slack, or in the case that a single cycle delay is
 // needed for synchronization purpose.
 `timescale 1ns/1ps
+
+//TODO: decoupling master and slave axi streams
 module axi_stream_register_slice #(
   parameter int TDATA_W = 512,
   parameter int TID_W   = 8,
@@ -77,6 +79,7 @@ module axi_stream_register_slice #(
 
     reg                   filled;
 
+    //setting the output
     assign s_axis_tready = ~filled || m_axis_tready;
     assign m_axis_tvalid = filled;
     assign m_axis_tdata  = axis_tdata;

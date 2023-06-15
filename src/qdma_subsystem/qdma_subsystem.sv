@@ -777,7 +777,8 @@ module qdma_subsystem #(
 
     for (genvar i = 0; i < NUM_PHYS_FUNC; i++) begin
       qdma_subsystem_function #(
-        .FUNC_ID     (i),
+        .FUNC_ID     (i), //Number of function blocks same as number of physical 
+                          // blocks
         .MAX_PKT_LEN (MAX_PKT_LEN),
         .MIN_PKT_LEN (MIN_PKT_LEN)
       ) func_inst (

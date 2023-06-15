@@ -15,22 +15,21 @@
 // limitations under the License.
 //
 // *************************************************************************
-// CMAC subsystem address map
-//
-// System-level address range: 
-//   - 0x08000 - 0x0AFFF (CMAC-0)
-//   - 0x0C000 - 0x0EFFF (CMAC-1)
-//
+// XXV subsystem address map
+//  
+//  System-level address range:
+//  - 0x08000 - 0x0AFFF (XXV-0), PCIe BAR2
+//  - 
 // --------------------------------------------------
 //   BaseAddr |  HighAddr |  Module
 // --------------------------------------------------
-//    0x0000  |   0x1FFF  |  CMAC IP block
+//   0x0000  |   0x1FFF   |  XXV IP block
 // --------------------------------------------------
-//    0x2000  |   0x2FFF  |  QSFP28 I2C     //Unused as of version 
+//   0x2000  |   0x2FFF  |  QSFP28 I2C 
 // --------------------------------------------------
 `include "open_nic_shell_macros.vh"
 `timescale 1ns/1ps
-module cmac_subsystem_address_map (
+module xxv_subsystem_address_map(
   input         s_axil_awvalid,
   input  [31:0] s_axil_awaddr,
   output        s_axil_awready,
@@ -48,23 +47,25 @@ module cmac_subsystem_address_map (
   output  [1:0] s_axil_rresp,
   input         s_axil_rready,
 
-  output        m_axil_cmac_awvalid,
-  output [31:0] m_axil_cmac_awaddr,
-  input         m_axil_cmac_awready,
-  output        m_axil_cmac_wvalid,
-  output [31:0] m_axil_cmac_wdata,
-  input         m_axil_cmac_wready,
-  input         m_axil_cmac_bvalid,
-  input   [1:0] m_axil_cmac_bresp,
-  output        m_axil_cmac_bready,
-  output        m_axil_cmac_arvalid,
-  output [31:0] m_axil_cmac_araddr,
-  input         m_axil_cmac_arready,
-  input         m_axil_cmac_rvalid,
-  input  [31:0] m_axil_cmac_rdata,
-  input   [1:0] m_axil_cmac_rresp,
-  output        m_axil_cmac_rready,
+  output        m_axil_xxv_awvalid,
+  output [31:0] m_axil_xxv_awaddr,
+  input         m_axil_xxv_awready,
+  output        m_axil_xxv_wvalid,
+  output [31:0] m_axil_xxv_wdata,
+  input         m_axil_xxv_wready,
+  input         m_axil_xxv_bvalid,
+  input   [1:0] m_axil_xxv_bresp,
+  output        m_axil_xxv_bready,
+  output        m_axil_xxv_arvalid,
+  output [31:0] m_axil_xxv_araddr,
+  input         m_axil_xxv_arready,
+  input         m_axil_xxv_rvalid,
+  input  [31:0] m_axil_xxv_rdata,
+  input   [1:0] m_axil_xxv_rresp,
+  output        m_axil_xxv_rready,
 
+ifdef DISABLED_CODE
+ 
   output        m_axil_qsfp_awvalid,
   output [31:0] m_axil_qsfp_awaddr,
   input         m_axil_qsfp_awready,
@@ -81,63 +82,65 @@ module cmac_subsystem_address_map (
   input  [31:0] m_axil_qsfp_rdata,
   input   [1:0] m_axil_qsfp_rresp,
   output        m_axil_qsfp_rready,
+`endif 
 
   input         aclk,
   input         aresetn
 );
 
-  localparam C_NUM_SLAVES = 2;
+ localparam C_NUM_SLAVES = 1;
+ 
+ localparam C_XXV_INDEX = 0;
+ localparam C_QSFP_INDEX = 1;
 
-  localparam C_CMAC_INDEX = 0;
-  localparam C_QSFP_INDEX = 1;
+ localparam C_XXV_BASE_ADDR = 32'h0;
+ localparam C_QSFP_BASE_ADDR = 32'h2000;
 
-  localparam C_CMAC_BASE_ADDR = 32'h0;
-  localparam C_QSFP_BASE_ADDR = 32'h2000;
 
-  wire                [31:0] axil_cmac_awaddr;
-  wire                [31:0] axil_cmac_araddr;
-  wire                [31:0] axil_qsfp_awaddr;
-  wire                [31:0] axil_qsfp_araddr;
+ wire                [31:0] axil_xxv_awaddr;
+ wire                [31:0] axil_xxv_araddr;
+ wire                [31:0] axil_qsfp_awaddr;
+ wire                [31:0] axil_qsfp_araddr;
 
-  wire  [1*C_NUM_SLAVES-1:0] axil_awvalid;
-  wire [32*C_NUM_SLAVES-1:0] axil_awaddr;
-  wire  [1*C_NUM_SLAVES-1:0] axil_awready;
-  wire  [1*C_NUM_SLAVES-1:0] axil_wvalid;
-  wire [32*C_NUM_SLAVES-1:0] axil_wdata;
-  wire  [1*C_NUM_SLAVES-1:0] axil_wready;
-  wire  [1*C_NUM_SLAVES-1:0] axil_bvalid;
-  wire  [2*C_NUM_SLAVES-1:0] axil_bresp;
-  wire  [1*C_NUM_SLAVES-1:0] axil_bready;
-  wire  [1*C_NUM_SLAVES-1:0] axil_arvalid;
-  wire [32*C_NUM_SLAVES-1:0] axil_araddr;
-  wire  [1*C_NUM_SLAVES-1:0] axil_arready;
-  wire  [1*C_NUM_SLAVES-1:0] axil_rvalid;
-  wire [32*C_NUM_SLAVES-1:0] axil_rdata;
-  wire  [2*C_NUM_SLAVES-1:0] axil_rresp;
-  wire  [1*C_NUM_SLAVES-1:0] axil_rready;
+ wire  [1*C_NUM_SLAVES-1:0] axil_awvalid;
+ wire [32*C_NUM_SLAVES-1:0] axil_awaddr;
+ wire  [1*C_NUM_SLAVES-1:0] axil_awready;
+ wire  [1*C_NUM_SLAVES-1:0] axil_wvalid;
+ wire [32*C_NUM_SLAVES-1:0] axil_wdata;
+ wire  [1*C_NUM_SLAVES-1:0] axil_wready;
+ wire  [1*C_NUM_SLAVES-1:0] axil_bvalid;
+ wire  [2*C_NUM_SLAVES-1:0] axil_bresp;
+ wire  [1*C_NUM_SLAVES-1:0] axil_bready;
+ wire  [1*C_NUM_SLAVES-1:0] axil_arvalid;
+ wire [32*C_NUM_SLAVES-1:0] axil_araddr;
+ wire  [1*C_NUM_SLAVES-1:0] axil_arready;
+ wire  [1*C_NUM_SLAVES-1:0] axil_rvalid;
+ wire [32*C_NUM_SLAVES-1:0] axil_rdata;
+ wire  [2*C_NUM_SLAVES-1:0] axil_rresp;
+ wire  [1*C_NUM_SLAVES-1:0] axil_rready;
 
-  // Adjust AXI-Lite address so that each slave can assume a base address of 0x0
-  assign axil_cmac_awaddr                      = axil_awaddr[`getvec(32, C_CMAC_INDEX)] - C_CMAC_BASE_ADDR;
-  assign axil_cmac_araddr                      = axil_araddr[`getvec(32, C_CMAC_INDEX)] - C_CMAC_BASE_ADDR;
-  assign axil_qsfp_awaddr                      = axil_awaddr[`getvec(32, C_QSFP_INDEX)] - C_QSFP_BASE_ADDR;
-  assign axil_qsfp_araddr                      = axil_araddr[`getvec(32, C_QSFP_INDEX)] - C_QSFP_BASE_ADDR;
+// Adjust AXI-Lite address so that each slave can assume a base address of 0x0
+  assign axil_xxv_awaddr                      = axil_awaddr[`getvec(32, C_XXV_INDEX)] - C_XXV_BASE_ADDR;
+  assign axil_xxv_araddr                      = axil_araddr[`getvec(32, C_XXV_INDEX)] - C_XXV_BASE_ADDR;
+  //assign axil_qsfp_awaddr                      = axil_awaddr[`getvec(32, C_QSFP_INDEX)] - C_QSFP_BASE_ADDR;
+  //assign axil_qsfp_araddr                      = axil_araddr[`getvec(32, C_QSFP_INDEX)] - C_QSFP_BASE_ADDR;
 
-  assign m_axil_cmac_awvalid                   = axil_awvalid[C_CMAC_INDEX];
-  assign m_axil_cmac_awaddr                    = axil_cmac_awaddr;
-  assign axil_awready[C_CMAC_INDEX]            = m_axil_cmac_awready;
-  assign m_axil_cmac_wvalid                    = axil_wvalid[C_CMAC_INDEX];
-  assign m_axil_cmac_wdata                     = axil_wdata[`getvec(32, C_CMAC_INDEX)];
-  assign axil_wready[C_CMAC_INDEX]             = m_axil_cmac_wready;
-  assign axil_bvalid[C_CMAC_INDEX]             = m_axil_cmac_bvalid;
-  assign axil_bresp[`getvec(2, C_CMAC_INDEX)]  = m_axil_cmac_bresp;
-  assign m_axil_cmac_bready                    = axil_bready[C_CMAC_INDEX];
-  assign m_axil_cmac_arvalid                   = axil_arvalid[C_CMAC_INDEX];
-  assign m_axil_cmac_araddr                    = axil_cmac_araddr;
-  assign axil_arready[C_CMAC_INDEX]            = m_axil_cmac_arready;
-  assign axil_rvalid[C_CMAC_INDEX]             = m_axil_cmac_rvalid;
-  assign axil_rdata[`getvec(32, C_CMAC_INDEX)] = m_axil_cmac_rdata;
-  assign axil_rresp[`getvec(2, C_CMAC_INDEX)]  = m_axil_cmac_rresp;
-  assign m_axil_cmac_rready                    = axil_rready[C_CMAC_INDEX];
+  assign m_axil_xxv_awvalid                   = axil_awvalid[C_XXV_INDEX];
+  assign m_axil_xxv_awaddr                    = axil_xxv_awaddr;
+  assign axil_awready[C_XXV_INDEX]            = m_axil_xxv_awready;
+  assign m_axil_xxv_wvalid                    = axil_wvalid[C_XXV_INDEX];
+  assign m_axil_xxv_wdata                     = axil_wdata[`getvec(32, C_XXV_INDEX)];
+  assign axil_wready[C_XXV_INDEX]             = m_axil_xxv_wready;
+  assign axil_bvalid[C_XXV_INDEX]             = m_axil_xxv_bvalid;
+  assign axil_bresp[`getvec(2, C_XXV_INDEX)]  = m_axil_xxv_bresp;
+  assign m_axil_xxv_bready                    = axil_bready[C_XXV_INDEX];
+  assign m_axil_xxv_arvalid                   = axil_arvalid[C_XXV_INDEX];
+  assign m_axil_xxv_araddr                    = axil_xxv_araddr;
+  assign axil_arready[C_XXV_INDEX]            = m_axil_xxv_arready;
+  assign axil_rvalid[C_XXV_INDEX]             = m_axil_xxv_rvalid;
+  assign axil_rdata[`getvec(32, C_XXV_INDEX)] = m_axil_xxv_rdata;
+  assign axil_rresp[`getvec(2, C_XXV_INDEX)]  = m_axil_xxv_rresp;
+  assign m_axil_xxv_rready                    = axil_rready[C_XXV_INDEX];
 
   assign m_axil_qsfp_awvalid                   = axil_awvalid[C_QSFP_INDEX];
   assign m_axil_qsfp_awaddr                    = axil_qsfp_awaddr;
@@ -156,13 +159,12 @@ module cmac_subsystem_address_map (
   assign axil_rresp[`getvec(2, C_QSFP_INDEX)]  = m_axil_qsfp_rresp;
   assign m_axil_qsfp_rready                    = axil_rready[C_QSFP_INDEX];
 
-  cmac_subsystem_axi_crossbar xbar_inst (
+  xxv_subsystem_axi_crossbar xbar_inst (
     .s_axi_awaddr  (s_axil_awaddr),
     .s_axi_awprot  (0),
     .s_axi_awvalid (s_axil_awvalid),
     .s_axi_awready (s_axil_awready),
     .s_axi_wdata   (s_axil_wdata),
-    //ASK 4'h F?
     .s_axi_wstrb   (4'hF),
     .s_axi_wvalid  (s_axil_wvalid),
     .s_axi_wready  (s_axil_wready),
@@ -202,4 +204,4 @@ module cmac_subsystem_address_map (
     .aresetn       (aresetn)
   );
 
-endmodule: cmac_subsystem_address_map
+endmodule: xxv_subsystem_address_map

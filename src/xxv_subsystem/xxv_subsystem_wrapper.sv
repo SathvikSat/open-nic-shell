@@ -59,12 +59,14 @@ module xxv_subsystem_xxv_wrapper #(
     input          gt_refclk_p,
     input          gt_refclk_n,
     
-
+    output         xxv_clk,
+    input          xxv_sys_reset,
     input          axil_aclk
 
 );
 
-
+  wire tx_clk_out_0;
+  assign xxv_clk = tx_clk_out_0;
   generateif (XXV_ID == 0 ) begin
     xxv_ethernet_0 xxv_inst(
     .gt_rxp_in                           (gt_rxp),
@@ -72,30 +74,34 @@ module xxv_subsystem_xxv_wrapper #(
     .gt_txp_out                          (gt_txp),
     .gt_txn_out                          (gt_txn),
 
-
-
     //Inputs, 1bit
-    .sys_reset()
-    .dlck()
-    .sys_reset_0()
+    //.sys_reset(xxv_sys_reset)
+    //.dlck() //100Mhz
+    .sys_reset_0(xxv_sys_reset)
+    //External port 100Hz clock adding and its sync?
     .dlck_0()
     .clk_322()
     .locked_out_322()
     .gt_ref_clk_p                        (gt_refclk_p),
     .gt_ref_clk_n                        (gt_refclk_n),
-    //2/4 bit
-    .qpll0clk_in()
+    
+    //2/4 bit shared logic is part of core
+    //.qpll0clk_in( )
     //ASK: what is the difference between clock and refclk?
-    .qpll0refclk_in()
-    .qpll1clk_in()
-    .qpll1refclk_in()
-    .gtwiz_reset_qpll0lock_in()
-    .gtwiz_reset_qpll0reset_out()
-    .gtwiz_reset_qpll1lock_in()
+    //.qpll0refclk_in( )
+    //.qpll1clk_in( )
+    //.qpll1refclk_in( )
+    
+    //.gtwiz_reset_qpll0lock_in()
+    //.gtwiz_reset_qpll0reset_out()
+    //.gtwiz_reset_qpll1lock_in()
 
     //output signals 1bit
-    .gtwiz_reset_qpll1reset_out()
-    .tx_clk_out_0()
+    //.gtwiz_reset_qpll1reset_out()
+    
+    .tx_clk_out_0(tx_clk_out_0)
+    
+    //ASK: check IP version
     .tx_mii_clk_0()
     .rx_clk_out_0()
     
@@ -201,23 +207,24 @@ module xxv_subsystem_xxv_wrapper #(
     s_axi_aclk_0()
     s_axi_aresetn_0()
     pm_tick_0()
-    s_axi_awaddr_0()
-    s_axi_awvalid_0()
-    s_axi_awready_0()
-    s_axi_wdata_0()
-    s_axi_wstrb_0()
-    s_axi_wvalid_0()
-    s_axi_wready_0()
-    s_axi_bresp_0()
-    s_axi_bvalid_0()
-    s_axi_bready_0()
-    s_axi_araddr_0()
-    s_axi_arvalid_0()
-    s_axi_arready_0()
-    s_axi_rdata_0()
-    s_axi_rresp_0()
-    s_axi_rvalid_0()
-    s_axi_rready_0()
+
+    s_axi_awaddr_0(s_axil_awaddr)   
+    s_axi_awvalid_0(s_axil_awvalid)
+    s_axi_awready_0(s_axil_awready)
+    s_axi_wdata_0(s_axil_wdata)
+    s_axi_wstrb_0(4'hF)
+    s_axi_wvalid_0(s_axil_wvalid)
+    s_axi_wready_0(s_axil_wready)
+    s_axi_bresp_0(s_axil_bresp)
+    s_axi_bvalid_0(s_axil_bvalid)
+    s_axi_bready_0(s_axil_bready)
+    s_axi_araddr_0(s_axil_araddr)
+    s_axi_arvalid_0(s_axil_arvalid)
+    s_axi_arready_0(s_axil_arready)
+    s_axi_rdata_0(s_axil_rdata)
+    s_axi_rresp_0(s_axil_rresp)
+    s_axi_rvalid_0(s_axil_rvalid)
+    s_axi_rready_0(s_axil_rready)
 
     //AXI stream user interface signals
     tx_unfout_0()
@@ -237,6 +244,7 @@ module xxv_subsystem_xxv_wrapper #(
     rx_axis_tuser_0()
     rx_preamblein_0()
     rx_parityout_0()
+    //test
 
     //control/status/statistics signals not handled
     )

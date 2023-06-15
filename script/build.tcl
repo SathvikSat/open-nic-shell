@@ -120,9 +120,16 @@ array set sim_params {
     -sim_top          ""
 }
 
+# $argc number of args
+# $argv array var that holds actual arrgument values
+
 # Expect arguments in the form of `-argument value`
-for {set i 0} {$i < $argc} {incr i 2} {
-    set arg [lindex $argv $i]
+for {set i 0} {$i < $argc } {incr i 2} {
+
+    # ith index value is in arg
+    set arg [lindex $argv $i] 
+    
+    
     set val [lindex $argv [expr $i+1]]
     if {[info exists build_options($arg)]} {
         set build_options($arg) $val
@@ -195,8 +202,8 @@ if {[file exists $build_dir]} {
             exit
         }
     } else {
-	file delete -force $build_dir/open_nic_shell
-	puts "Deleted existing build director $build_dir/open_nic_shell"
+        file delete -force $build_dir/open_nic_shell
+        puts "Deleted existing build director $build_dir/open_nic_shell"
     }
 } else {
     file mkdir $build_dir
@@ -209,13 +216,17 @@ close $fp
 
 # Update the board store
 if {[string equal $board_repo ""]} {
-    set_param board.repoPaths "${root_dir}/board_files"    
+    set_param board.repoPaths "${root_dir}/board_files"
     # xhub::refresh_catalog [xhub::get_xstores xilinx_board_store]
 } else {
     set_param board.repoPaths $board_repo
 }
 
 # Enumerate modules
+
+#*****************enumerate modules in source path
+
+
 foreach name [glob -tails -directory ${src_dir} -type d *] {
     if {![string equal $name "shell"]} {
         dict append module_dict $name "${src_dir}/${name}"
@@ -232,11 +243,17 @@ if {![file exists ${ip_build_dir}/manage_ip/]} {
     }
     set_property simulator_language verilog [current_project]
 } else {
+
+#****************open vivado IP in build directory********************8
+
     puts "INFO: \[Manage IP\] Opening existing Manage IP project..."
     open_project -quiet ${ip_build_dir}/manage_ip/manage_ip.xpr
 }
 
 # Run synthesis for each IP
+
+#for out of box synthesis: user logic, bitstream gen, impl excluded?
+
 set ip_dict [dict create]
 dict for {module module_dir} $module_dict {
     set ip_tcl_dir ${module_dir}/vivado_ip
@@ -313,6 +330,9 @@ if {[file exists $top_build_dir] && !$overwrite} {
     puts "INFO: \[$top\] Use existing build (overwrite=0)"
     return
 }
+
+
+#******say  if changes made/overwritten in user plugin??***************
 if {[file exists $top_build_dir]} {
     puts "INFO: \[$top\] Found existing build, deleting... (overwrite=1)"
     file delete -force $top_build_dir
@@ -342,13 +362,13 @@ set include_dirs [get_property include_dirs [current_fileset]]
 foreach freq [list 250mhz 322mhz] {
     set box "box_$freq"
     set box_plugin ${user_plugin}/${box}
-    
+
     if {![file exists $box_plugin] || ![file exists ${user_plugin}/build_${box}.tcl]} {
         set box_plugin ${plugin_dir}/p2p/${box}
     }
 
     source ${box_plugin}/${box}_axi_crossbar.tcl
-    read_verilog -quiet ${box_plugin}/${box}_address_map.v
+    read_verilog -quiet ${box_plugin}/${box}_address_map.v 
     lappend include_dirs $box_plugin
 
     if {![file exists ${user_plugin}/build_${box}.tcl]} {
@@ -401,6 +421,7 @@ puts $fp "set_property BITSTREAM.CONFIG.USERID \"$bitstream_userid\" \[current_d
 puts $fp "set_property BITSTREAM.CONFIG.USR_ACCESS $bitstream_usr_access \[current_design\]"
 close $fp
 
+
 # Read constraint files
 read_xdc -unmanaged ${constr_dir}/${board}/pins.xdc
 read_xdc -unmanaged ${constr_dir}/${board}/timing.xdc
@@ -428,12 +449,35 @@ if {$sim} {
     launch_simulation -scripts_only
 }
 
+
+set start_time [clock clicks -microseconds]
+time {
 # Implement design
 if {$impl} {
     update_compile_order -fileset sources_1
     _do_impl $jobs {"Vivado Implementation Defaults"}
 }
+}
+set end_time [clock clicks -microseconds]
+set elapsed_time [expr {$end_time - $start_time
+}]
+puts "Time _do_impl: $elapsed_time_do_imp us"
 
 if {$post_impl} {
     _do_post_impl $top_build_dir $top impl_1 $zynq_family
 }
+
+
+
+set start_time [clock clicks -microseconds]
+time {
+  # your FPGA build script here
+	
+	
+  for {set i 1} {$i <= 100} {incr i} {
+    puts $i
+  }
+}
+set end_time [clock clicks -microseconds]
+set elapsed_time [expr {$end_time - $start_time}]
+puts "Elapsed time: $elapsed_time microseconds"

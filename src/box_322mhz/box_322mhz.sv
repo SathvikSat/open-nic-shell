@@ -17,9 +17,10 @@
 // *************************************************************************
 `timescale 1ns/1ps
 module box_322mhz #(
-  parameter int MIN_PKT_LEN   = 64,
+  parameter int MIN_PKT_LEN   = 64, //bits ?
   parameter int MAX_PKT_LEN   = 1518,
-  parameter int NUM_CMAC_PORT = 1
+  parameter int NUM_CMAC_PORT = 1,
+  parameter int NUM_XXV_PORT  = 1
 ) (
   input                          s_axil_awvalid,
   input                   [31:0] s_axil_awaddr,
