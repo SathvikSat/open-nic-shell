@@ -78,7 +78,8 @@ module xxv_subsystem_xxv_wrapper #(
     //.sys_reset(xxv_sys_reset)
     //.dlck() //100Mhz
     .sys_reset_0(xxv_sys_reset)
-    //External port 100Hz clock adding and its sync?
+    
+    //External 100Mhz source
     .dlck_0()
     .clk_322()
     .locked_out_322()

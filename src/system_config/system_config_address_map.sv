@@ -153,6 +153,24 @@ module system_config_address_map #(
   input   [2*NUM_CMAC_PORT-1:0] m_axil_cmac_rresp,
   output    [NUM_CMAC_PORT-1:0] m_axil_cmac_rready,
 
+ //XXV system config address map output configs
+  output    [NUM_XXV_PORT-1:0] m_axil_xxv_awvalid,
+  output [32*NUM_XXV_PORT-1:0] m_axil_xxv_awaddr,
+  input     [NUM_XXV_PORT-1:0] m_axil_xxv_awready,
+  output    [NUM_XXV_PORT-1:0] m_axil_xxv_wvalid,
+  output [32*NUM_XXV_PORT-1:0] m_axil_xxv_wdata,
+  input     [NUM_XXV_PORT-1:0] m_axil_xxv_wready,
+  input     [NUM_XXV_PORT-1:0] m_axil_xxv_bvalid,
+  input   [2*NUM_XXV_PORT-1:0] m_axil_xxv_bresp,
+  output    [NUM_XXV_PORT-1:0] m_axil_xxv_bready,
+  output    [NUM_XXV_PORT-1:0] m_axil_xxv_arvalid,
+  output [32*NUM_XXV_PORT-1:0] m_axil_xxv_araddr,
+  input     [NUM_XXV_PORT-1:0] m_axil_xxv_arready,
+  input     [NUM_XXV_PORT-1:0] m_axil_xxv_rvalid,
+  input  [32*NUM_XXV_PORT-1:0] m_axil_xxv_rdata,
+  input   [2*NUM_XXV_PORT-1:0] m_axil_xxv_rresp,
+  output    [NUM_XXV_PORT-1:0] m_axil_xxv_rready,
+
   output                        m_axil_box0_awvalid,
   output                 [31:0] m_axil_box0_awaddr,
   input                         m_axil_box0_awready,
@@ -209,7 +227,7 @@ module system_config_address_map #(
 );
 
   localparam C_NUM_SLAVES  = 9;
-
+ //TODO: what's this:
   localparam C_SCFG_INDEX  = 0;
   localparam C_QDMA_INDEX  = 1;
   localparam C_CMAC0_INDEX = 2;

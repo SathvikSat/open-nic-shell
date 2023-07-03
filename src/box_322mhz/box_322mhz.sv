@@ -59,11 +59,22 @@ module box_322mhz #(
   output     [NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tuser_err,
   input      [NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tready,
 
-  input      [NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tvalid,
-  input  [512*NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tdata,
-  input   [64*NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tkeep,
-  input      [NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tlast,
-  input      [NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tuser_err,
+  //input      [NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tvalid,
+  //input  [512*NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tdata,
+  //input   [64*NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tkeep,
+  //input      [NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tlast,
+  //input      [NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tuser_err,
+
+  //For XXV Ethernet
+  //TODO: initially for testing with 1 XXV Ethernet consider 
+  //NUM_XXV_PORT == 1 (IMPORTANT) 
+  //This [512*NUM_XXV_PORT-1:0] format might not work for multiple instaces of 
+  //XXV as each XXV is assocaited with a FIFO, cross-check this.
+  input      [NUM_XXV_PORT-1:0] s_axis_xxv_fifo_rx_tvalid,
+  input  [512*NUM_XXV_PORT-1:0] s_axis_xxv_fifo_rx_tdata,
+  input   [64*NUM_XXV_PORT-1:0] s_axis_xxv_fifo_rx_tkeep,
+  input      [NUM_XXV_PORT-1:0] s_axis_xxv_fifo_rx_tlast,
+  input      [NUM_XXV_PORT-1:0] s_axis_xxv_fifo_rx_tuser_err,
 
   // Reset pairs for modules in the box (synchronized to `axil_aclk`)
   input                    [7:0] mod_rstn,

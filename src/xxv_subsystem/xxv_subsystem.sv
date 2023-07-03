@@ -16,7 +16,7 @@
 //
 // *************************************************************************
 `timescale 1ns/1ps
-module xxv_ethernet #(
+module xxv_subsystem #(
     parameter int XXV_ID = 0, //How many instances to use?
     parameter int MIN_PKT_LEN = 64, //Use in AXI_tdata?
     parameter int MAX_PKT_LEN = 1518
@@ -75,8 +75,8 @@ module xxv_ethernet #(
   input          axil_aclk    
 );
 
-    wire axil_aresetn;
-    wire xxv_rstn;
+  wire axil_aresetn;
+  wire xxv_rstn;
 
   wire         axil_xxv_awvalid;
   wire  [31:0] axil_xxv_awaddr;
@@ -112,17 +112,30 @@ module xxv_ethernet #(
   wire         axil_qsfp_rvalid;
   wire         axil_qsfp_rready;
 
-    // Reset is clocked by the 125MHz AXI-Lite clock
-    generic_reset #(
-      .NUM_INPUT_CLK  (2),
-      .RESET_DURATION (100)
-    )
-    reset_inst (
-        .mod_rstn     (mod_rstn),
-        .mod_rst_done (mod_rst_done),
-        .clk          ({ xxv_clk, axil_aclk}),  
-        .rstn         ({xxv_rstn, axil_aresetn})
-    );
+  wire         axis_xxv_tx_tvalid;
+  wire [63:0]  axis_xxv_tx_tdata;
+  wire  [7:0]  axis_xxv_tx_tkeep;
+  wire         axis_xxv_tx_tlast;
+  wire         axis_xxv_tx_tuser_err;
+  wire         axis_xxv_tx_tready;
+
+  wire         axis_xxv_rx_tvalid;
+  wire [63:0]  axis_xxv_rx_tdata;
+  wire  [7:0]  axis_xxv_rx_tkeep;
+  wire         axis_xxv_rx_tlast;
+  wire         axis_xxv_rx_tuser_err;
+
+  // Reset is clocked by the 125MHz AXI-Lite clock
+  generic_reset #(
+    .NUM_INPUT_CLK  (2),
+    .RESET_DURATION (100)
+  )
+  reset_inst (
+      .mod_rstn     (mod_rstn),
+      .mod_rst_done (mod_rst_done),
+      .clk          ({ xxv_clk, axil_aclk}),  
+      .rstn         ({xxv_rstn, axil_aresetn})
+  );
 
 xxv_subsystem_address_map address_map_inst(
 
@@ -213,7 +226,30 @@ xxv_subsystem_address_map address_map_inst(
   );
 
 //axi_stream_register_slice() //tx
-//axi_stream_register_slice() //rx
+axi_stream_register_slice #(
+  .TDATA_W (64),
+  .TUSER_W (1),
+  .MODE    ("full")
+) rx_slice_inst (
+  .s_axis_tvalid (axis_xxv_rx_tvalid),
+  .s_axis_tdata  (axis_xxv_rx_tdata),
+  .s_axis_tkeep  (axis_xxv_rx_tkeep),
+  .s_axis_tlast  (axis_xxv_rx_tlast),
+  .s_axis_tid    (0),
+  .s_axis_tdest  (0),
+  .s_axis_tuser  (axis_xxv_rx_tuser_err),
+  .s_axis_tready (),
+  .m_axis_tvalid (m_axis_xxv_rx_tvalid),
+  .m_axis_tdata  (m_axis_xxv_rx_tdata),
+  .m_axis_tkeep  (m_axis_xxv_rx_tkeep),
+  .m_axis_tlast  (m_axis_xxv_rx_tlast),
+  .m_axis_tid    (),
+  .m_axis_tdest  (),
+  .m_axis_tuser  (m_axis_xxv_rx_tuser_err),
+  .m_axis_tready (1'b1),
+  .aclk          (xxv_clk),
+  .aresetn       (xxv_rstn)
+);
 
 
 
@@ -255,4 +291,4 @@ xxv_subsystem_xxv_wrapper #(
 );
 `endif
 //simulation case not handled.
-endmodule: xxv_ethernet
+endmodule: xxv_subsystem

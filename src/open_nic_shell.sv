@@ -397,6 +397,15 @@ module open_nic_shell #(
   wire     [NUM_CMAC_PORT-1:0] axis_cmac_rx_tlast;
   wire     [NUM_CMAC_PORT-1:0] axis_cmac_rx_tuser_err;
 
+ //XXV subsystem master to Box322Mhz
+  wire     [NUM_CMAC_PORT-1:0] axis_xxv_fifo_rx_tvalid;
+  wire [512*NUM_CMAC_PORT-1:0] axis_xxv_fifo_rx_tdata;
+  wire  [64*NUM_CMAC_PORT-1:0] axis_xxv_fifo_rx_tkeep;
+  wire     [NUM_CMAC_PORT-1:0] axis_xxv_fifo_rx_tlast;
+  wire     [NUM_CMAC_PORT-1:0] axis_xxv_fifo_rx_tuser_err;
+
+
+
   wire                  [31:0] shell_rstn;
   wire                  [31:0] shell_rst_done;
   wire                         qdma_rstn;
@@ -558,6 +567,27 @@ module open_nic_shell #(
     .m_axil_cmac_rdata   (axil_cmac_rdata),
     .m_axil_cmac_rresp   (axil_cmac_rresp),
     .m_axil_cmac_rready  (axil_cmac_rready),
+
+    //XXV system config axil
+    .m_axil_cmac_awvalid (axil_cmac_awvalid),
+    .m_axil_cmac_awaddr  (axil_cmac_awaddr),
+    .m_axil_cmac_awready (axil_cmac_awready),
+    .m_axil_cmac_wvalid  (axil_cmac_wvalid),
+    .m_axil_cmac_wdata   (axil_cmac_wdata),
+    .m_axil_cmac_wready  (axil_cmac_wready),
+    .m_axil_cmac_bvalid  (axil_cmac_bvalid),
+    .m_axil_cmac_bresp   (axil_cmac_bresp),
+    .m_axil_cmac_bready  (axil_cmac_bready),
+    .m_axil_cmac_arvalid (axil_cmac_arvalid),
+    .m_axil_cmac_araddr  (axil_cmac_araddr),
+    .m_axil_cmac_arready (axil_cmac_arready),
+    .m_axil_cmac_rvalid  (axil_cmac_rvalid),
+    .m_axil_cmac_rdata   (axil_cmac_rdata),
+    .m_axil_cmac_rresp   (axil_cmac_rresp),
+    .m_axil_cmac_rready  (axil_cmac_rready),
+
+
+
 
     .m_axil_box0_awvalid (axil_box0_awvalid),
     .m_axil_box0_awaddr  (axil_box0_awaddr),
@@ -789,6 +819,37 @@ module open_nic_shell #(
       .axis_aclk            (axis_aclk),
       .cmac_clk             (cmac_clk[i])
     );
+    
+  xxv_subsystem #(
+    .XXV_ID (i),
+    .MIN_PKT_LEN (MIN_PKT_LEN),
+    .MAX_PKT_LEN (MAX_PKT_LEN)
+  ) xxv_subsystem_inst (
+    .s_axil_awvalid (),
+    .s_axil_awaddr (),
+    .s_axil_awready (),
+    .s_axil_wvalid (),
+    .s_axil_wdata (),
+    .s_axil_wready (),
+    .s_axil_bvalid (),
+    .s_axil_bresp (),
+    .s_axil_bready (),
+    .s_axil_arvalid (),
+    .s_axil_araddr (),
+    .s_axil_arready (),
+    .s_axil_rvalid (),
+    .s_axil_rdata (),
+    .s_axil_rresp (),
+    .s_axil_rready (),
+  );
+
+
+
+
+
+
+
+
 
     cmac_subsystem #(
       .CMAC_ID     (i),
@@ -825,6 +886,19 @@ module open_nic_shell #(
       .m_axis_cmac_rx_tlast         (axis_cmac_rx_tlast[i]),
       .m_axis_cmac_rx_tuser_err     (axis_cmac_rx_tuser_err[i]),
 
+
+
+
+
+
+      //TODO: move it to xxv sub-system instance
+      .m_axis_xxv_rx_tvalid       (axis_xxv_fifo_rx_tvalid[i]),
+      .m_axis_xxv_rx_tdata        (axis_xxv_fifo_rx_tdata[`getvec(512, i)]),
+      .m_axis_xxv_rx_tkeep        (axis_xxv_fifo_rx_tkeep[`getvec(64, i)]),
+      .m_axis_xxv_rx_tlast        (axis_xxv_fifo_rx_tlast[i]),
+      .m_axis_xxv_rx_tuser_err    (axis_xxv_fifo_rx_tuser_err[i]),
+
+
 `ifdef __synthesis__
       .gt_rxp                       (qsfp_rxp[`getvec(4, i)]),
       .gt_rxn                       (qsfp_rxn[`getvec(4, i)]),
@@ -856,6 +930,10 @@ module open_nic_shell #(
       .axil_aclk                    (axil_aclk)
     );
   end: cmac_port
+
+
+
+
   endgenerate
 
   box_250mhz #(
@@ -963,6 +1041,7 @@ module open_nic_shell #(
     .s_axis_adap_tx_322mhz_tuser_err (axis_adap_tx_322mhz_tuser_err),
     .s_axis_adap_tx_322mhz_tready    (axis_adap_tx_322mhz_tready),
 
+    //1 master from box to slave at packet adapter
     .m_axis_adap_rx_322mhz_tvalid    (axis_adap_rx_322mhz_tvalid),
     .m_axis_adap_rx_322mhz_tdata     (axis_adap_rx_322mhz_tdata),
     .m_axis_adap_rx_322mhz_tkeep     (axis_adap_rx_322mhz_tkeep),
@@ -976,11 +1055,21 @@ module open_nic_shell #(
     .m_axis_cmac_tx_tuser_err        (axis_cmac_tx_tuser_err),
     .m_axis_cmac_tx_tready           (axis_cmac_tx_tready),
 
-    .s_axis_cmac_rx_tvalid           (axis_cmac_rx_tvalid),
-    .s_axis_cmac_rx_tdata            (axis_cmac_rx_tdata),
-    .s_axis_cmac_rx_tkeep            (axis_cmac_rx_tkeep),
-    .s_axis_cmac_rx_tlast            (axis_cmac_rx_tlast),
-    .s_axis_cmac_rx_tuser_err        (axis_cmac_rx_tuser_err),
+    //cmac RX slave 1 instance need to receive from 2 CMAC IPs
+    //.s_axis_cmac_rx_tvalid           (axis_cmac_rx_tvalid),
+    //.s_axis_cmac_rx_tdata            (axis_cmac_rx_tdata),
+    //.s_axis_cmac_rx_tkeep            (axis_cmac_rx_tkeep),
+    //.s_axis_cmac_rx_tlast            (axis_cmac_rx_tlast),
+    //.s_axis_cmac_rx_tuser_err        (axis_cmac_rx_tuser_err),
+
+    //For XXV Ethernet
+    .s_axis_xxv_fifo_rx_tvalid           (axis_xxv_fifo_rx_tvalid),
+    .s_axis_xxv_fifo_rx_tdata            (axis_xxv_fifo_rx_tdata),
+    .s_axis_xxv_fifo_rx_tkeep            (axis_xxv_fifo_rx_tkeep),
+    .s_axis_xxv_fifo_rx_tlast            (axis_xxv_fifo_rx_tlast),
+    .s_axis_xxv_fifo_rx_tuser_err        (axis_xxv_fifo_rx_tuser_err),
+
+
 
     .mod_rstn                        (user_322mhz_rstn),
     .mod_rst_done                    (user_322mhz_rst_done),
