@@ -1,6 +1,6 @@
 # *************************************************************************
 #
-# Copyright 2020 Xilinx, Inc.
+# Copyright 2023 AMD, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,14 +15,11 @@
 # limitations under the License.
 #
 # *************************************************************************
-set_property CONFIG_VOLTAGE 1.8 [current_design]
-set_property BITSTREAM.CONFIG.CONFIGFALLBACK Enable [current_design]
-set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
-set_property CONFIG_MODE SPIx4 [current_design]
-set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
-set_property BITSTREAM.CONFIG.CONFIGRATE 85.0 [current_design]
-set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN disable [current_design]
-set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design]
-set_property BITSTREAM.CONFIG.UNUSEDPIN Pullup [current_design]
-set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR Yes [current_design]
-set_operating_conditions -design_power_budget 160
+set axis_clock_converter qdma_subsystem_clk_converter
+create_ip -name axis_clock_converter -vendor xilinx.com -library ip -version 1.1 -module_name $axis_clock_converter -dir ${ip_build_dir}
+set_property -dict {
+  CONFIG.HAS_TKEEP {1}
+  CONFIG.HAS_TLAST {1}
+  CONFIG.TDATA_NUM_BYTES {64}
+  CONFIG.TUSER_WIDTH {16}
+ } [get_ips $axis_clock_converter]

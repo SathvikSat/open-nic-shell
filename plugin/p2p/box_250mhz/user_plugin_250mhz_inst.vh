@@ -32,7 +32,8 @@ localparam C_NUM_USER_BLOCK = 1;
 assign mod_rst_done[15:C_NUM_USER_BLOCK] = {(16-C_NUM_USER_BLOCK){1'b1}};
 
 p2p_250mhz #(
-  .NUM_INTF (NUM_PHYS_FUNC)
+  .NUM_QDMA    (NUM_QDMA),
+  .NUM_INTF    (NUM_PHYS_FUNC)
 ) p2p_250mhz_inst (
   .s_axil_awvalid                   (axil_p2p_awvalid),
   .s_axil_awaddr                    (axil_p2p_awaddr),
@@ -90,15 +91,18 @@ p2p_250mhz #(
   .mod_rstn                         (mod_rstn[0]),
   .mod_rst_done                     (mod_rst_done[0]),
 
-// For AU55N, we generate 100MHz reference clock which is needed when HBM IP is instantiated 
-// in user-defined logic.
-// TODO: This should be done for all boards that have HBM.
+// For AU55N, AU55C, AU50, and AU280, we generate 100MHz reference clock which is needed when HBM IP is instantiated 
+// in user-defined logic.  
+// Temperature related outputs can be added to route to CMS
+
 `ifdef __au55n__
   .ref_clk_100mhz                   (ref_clk_100mhz),
 `elsif __au55c__
   .ref_clk_100mhz                   (ref_clk_100mhz),
-`else
-//  .ref_clk_100mhz                   ()
+`elsif __au50__
+  .ref_clk_100mhz                   (ref_clk_100mhz),
+`elsif __au280__
+  .ref_clk_100mhz                   (ref_clk_100mhz),    
 `endif
 
   .axil_aclk                        (axil_aclk),
