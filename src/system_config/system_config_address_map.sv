@@ -143,6 +143,24 @@ module system_config_address_map #(
   input   [2*NUM_CMAC_PORT-1:0] m_axil_adap_rresp,
   output    [NUM_CMAC_PORT-1:0] m_axil_adap_rready,
 
+  //XXV port
+  output    [NUM_XXV_PORT-1:0] m_axil_adap_awvalid,
+  output [32*NUM_XXV_PORT-1:0] m_axil_adap_awaddr,
+  input     [NUM_XXV_PORT-1:0] m_axil_adap_awready,
+  output    [NUM_XXV_PORT-1:0] m_axil_adap_wvalid,
+  output [32*NUM_XXV_PORT-1:0] m_axil_adap_wdata,
+  input     [NUM_XXV_PORT-1:0] m_axil_adap_wready,
+  input     [NUM_XXV_PORT-1:0] m_axil_adap_bvalid,
+  input   [2*NUM_XXV_PORT-1:0] m_axil_adap_bresp,
+  output    [NUM_XXV_PORT-1:0] m_axil_adap_bready,
+  output    [NUM_XXV_PORT-1:0] m_axil_adap_arvalid,
+  output [32*NUM_XXV_PORT-1:0] m_axil_adap_araddr,
+  input     [NUM_XXV_PORT-1:0] m_axil_adap_arready,
+  input     [NUM_XXV_PORT-1:0] m_axil_adap_rvalid,
+  input  [32*NUM_XXV_PORT-1:0] m_axil_adap_rdata,
+  input   [2*NUM_XXV_PORT-1:0] m_axil_adap_rresp,
+  output    [NUM_XXV_PORT-1:0] m_axil_adap_rready,
+
   output    [NUM_CMAC_PORT-1:0] m_axil_cmac_awvalid,
   output [32*NUM_CMAC_PORT-1:0] m_axil_cmac_awaddr,
   input     [NUM_CMAC_PORT-1:0] m_axil_cmac_awready,
@@ -160,6 +178,7 @@ module system_config_address_map #(
   input   [2*NUM_CMAC_PORT-1:0] m_axil_cmac_rresp,
   output    [NUM_CMAC_PORT-1:0] m_axil_cmac_rready,
 
+  
  //XXV system config address map output configs
   output    [NUM_XXV_PORT-1:0] m_axil_xxv_awvalid,
   output [32*NUM_XXV_PORT-1:0] m_axil_xxv_awaddr,
@@ -273,11 +292,13 @@ module system_config_address_map #(
   input                         aresetn
 );
 
+  /** To provide axi lite for each slaves */
   localparam C_NUM_SLAVES  = 12;
-  //TODO: what's this:
   localparam C_SCFG_INDEX  = 0;
   localparam C_QDMA0_INDEX = 1;
-  localparam C_CMAC0_INDEX = 2;
+  /** TODO: cross check this if CMAC and XXV plans to run simultaneously */
+  //localparam C_CMAC0_INDEX = 2;
+  localparam C_XXV0_INDEX = 2;
   localparam C_ADAP0_INDEX = 3;
   localparam C_CMAC1_INDEX = 4;
   localparam C_ADAP1_INDEX = 5;
@@ -291,7 +312,9 @@ module system_config_address_map #(
   localparam C_SCFG_BASE_ADDR  = 32'h0;
   localparam C_QDMA0_BASE_ADDR = 32'h01000;
   localparam C_QDMA1_BASE_ADDR = 32'h12000;
-  localparam C_CMAC0_BASE_ADDR = 32'h08000;
+  /** TODO: */
+  //localparam C_CMAC0_BASE_ADDR = 32'h08000;
+  localparam C_XXV0_BASE_ADDR = 32'h08000;
   localparam C_ADAP0_BASE_ADDR = 32'h0B000;
   localparam C_CMAC1_BASE_ADDR = 32'h0C000;
   localparam C_ADAP1_BASE_ADDR = 32'h0F000;
@@ -309,6 +332,9 @@ module system_config_address_map #(
   wire                [31:0] axil_qdma1_araddr;
   wire                [31:0] axil_cmac0_awaddr;
   wire                [31:0] axil_cmac0_araddr;
+  //XXV
+  wire                [31:0] axil_xxv0_awaddr;
+  wire                [31:0] axil_xxv0_araddr;
   wire                [31:0] axil_adap0_awaddr;
   wire                [31:0] axil_adap0_araddr;
   wire                [31:0] axil_cmac1_awaddr;
@@ -370,8 +396,12 @@ module system_config_address_map #(
   assign axil_qdma0_araddr                     = axil_araddr[`getvec(32, C_QDMA0_INDEX)] - C_QDMA0_BASE_ADDR;
   assign axil_qdma1_awaddr                     = axil_awaddr[`getvec(32, C_QDMA1_INDEX)] - C_QDMA1_BASE_ADDR;
   assign axil_qdma1_araddr                     = axil_araddr[`getvec(32, C_QDMA1_INDEX)] - C_QDMA1_BASE_ADDR;
+  /** TODO: might need to comment CMAC when XXV is in use */
   assign axil_cmac0_awaddr                     = axil_awaddr[`getvec(32, C_CMAC0_INDEX)] - C_CMAC0_BASE_ADDR;
   assign axil_cmac0_araddr                     = axil_araddr[`getvec(32, C_CMAC0_INDEX)] - C_CMAC0_BASE_ADDR;
+  //xxv
+  assign axil_xxv0_awaddr                     =  axil_awaddr[`getvec(32, C_XXV0_INDEX)] - C_XXV0_BASE_ADDR;
+  assign axil_xxv0_araddr                     =  axil_araddr[`getvec(32, C_XXV0_INDEX)] - C_XXV0_BASE_ADDR;
   assign axil_adap0_awaddr                     = axil_awaddr[`getvec(32, C_ADAP0_INDEX)] - C_ADAP0_BASE_ADDR;
   assign axil_adap0_araddr                     = axil_araddr[`getvec(32, C_ADAP0_INDEX)] - C_ADAP0_BASE_ADDR;
   assign axil_cmac1_awaddr                     = axil_awaddr[`getvec(32, C_CMAC1_INDEX)] - C_CMAC1_BASE_ADDR;
@@ -517,7 +547,10 @@ module system_config_address_map #(
     assign axil_pcie_rready[0]                    = s_axil_rready[0];
   end
 
-  if (NUM_CMAC_PORT == 1) begin
+  if (NUM_XXV_PORT == 1) begin
+  //TODO: CMAC cond disabled here
+  //if (NUM_CMAC_PORT == 1) begin
+    //TODO: need to disable CMAC when XXV in use?
     assign m_axil_cmac_awvalid                    = axil_awvalid[C_CMAC0_INDEX];
     assign m_axil_cmac_awaddr                     = axil_cmac0_awaddr;
     assign axil_awready[C_CMAC0_INDEX]            = m_axil_cmac_awready;
@@ -534,6 +567,23 @@ module system_config_address_map #(
     assign axil_rdata[`getvec(32, C_CMAC0_INDEX)] = m_axil_cmac_rdata;
     assign axil_rresp[`getvec(2, C_CMAC0_INDEX)]  = m_axil_cmac_rresp;
     assign m_axil_cmac_rready                     = axil_rready[C_CMAC0_INDEX];
+
+    assign m_axil_xxv_awvalid                    = axil_awvalid[C_XXV0_INDEX];
+    assign m_axil_xxv_awaddr                     = axil_xxv0_awaddr;
+    assign axil_awready[C_XXV0_INDEX]            = m_axil_xxv_awready;
+    assign m_axil_xxv_wvalid                     = axil_wvalid[C_XXV0_INDEX];
+    assign m_axil_xxv_wdata                      = axil_wdata[`getvec(32, C_XXV0_INDEX)];
+    assign axil_wready[C_XXV0_INDEX]             = m_axil_xxv_wready;
+    assign axil_bvalid[C_XXV0_INDEX]             = m_axil_xxv_bvalid;
+    assign axil_bresp[`getvec(2, C_XXV0_INDEX)]  = m_axil_xxv_bresp;
+    assign m_axil_xxv_bready                     = axil_bready[C_XXV0_INDEX];
+    assign m_axil_xxv_arvalid                    = axil_arvalid[C_XXV0_INDEX];
+    assign m_axil_xxv_araddr                     = axil_xxv0_araddr;
+    assign axil_arready[C_XXV0_INDEX]            = m_axil_xxv_arready;
+    assign axil_rvalid[C_XXV0_INDEX]             = m_axil_xxv_rvalid;
+    assign axil_rdata[`getvec(32, C_XXV0_INDEX)] = m_axil_xxv_rdata;
+    assign axil_rresp[`getvec(2, C_XXV0_INDEX)]  = m_axil_xxv_rresp;
+    assign m_axil_xxv_rready                     = axil_rready[C_XXV0_INDEX];
 
     assign m_axil_adap_awvalid                    = axil_awvalid[C_ADAP0_INDEX];
     assign m_axil_adap_awaddr                     = axil_adap0_awaddr;
@@ -552,6 +602,7 @@ module system_config_address_map #(
     assign axil_rresp[`getvec(2, C_ADAP0_INDEX)]  = m_axil_adap_rresp;
     assign m_axil_adap_rready                     = axil_rready[C_ADAP0_INDEX];
 
+    //TODO: XXV1 not mentioned, so use CMAC1 sink with XXV0 as CMAC is alredy present?
     // Sink for unused CMAC1 register path
     axi_lite_slave #(
       .REG_ADDR_W (13),
@@ -622,6 +673,24 @@ module system_config_address_map #(
     assign axil_rresp[`getvec(2, C_CMAC0_INDEX)]  = m_axil_cmac_rresp[`getvec(2, 0)];
     assign m_axil_cmac_rready[0]                  = axil_rready[C_CMAC0_INDEX];
 
+    //XXV 0 instance
+    assign m_axil_xxv_awvalid[0]                 = axil_awvalid[C_XXV0_INDEX];
+    assign m_axil_xxv_awaddr[`getvec(32, 0)]     = axil_xxv0_awaddr;
+    assign axil_awready[C_XXV0_INDEX]            = m_axil_xxv_awready[0];
+    assign m_axil_xxv_wvalid[0]                  = axil_wvalid[C_XXV0_INDEX];
+    assign m_axil_xxv_wdata[`getvec(32, 0)]      = axil_wdata[`getvec(32, C_XXV0_INDEX)];
+    assign axil_wready[C_XXV0_INDEX]             = m_axil_xxv_wready[0];
+    assign axil_bvalid[C_XXV0_INDEX]             = m_axil_xxv_bvalid[0];
+    assign axil_bresp[`getvec(2, C_XXV0_INDEX)]  = m_axil_xxv_bresp[`getvec(2, 0)];
+    assign m_axil_xxv_bready[0]                  = axil_bready[C_XXV0_INDEX];
+    assign m_axil_xxv_arvalid[0]                 = axil_arvalid[C_XXV0_INDEX];
+    assign m_axil_xxv_araddr[`getvec(32, 0)]     = axil_xxv0_araddr;
+    assign axil_arready[C_XXV0_INDEX]            = m_axil_xxv_arready[0];
+    assign axil_rvalid[C_XXV0_INDEX]             = m_axil_xxv_rvalid[0];
+    assign axil_rdata[`getvec(32, C_XXV0_INDEX)] = m_axil_xxv_rdata[`getvec(32, 0)];
+    assign axil_rresp[`getvec(2, C_XXV0_INDEX)]  = m_axil_xxv_rresp[`getvec(2, 0)];
+    assign m_axil_xxv_rready[0]                  = axil_rready[C_XXV0_INDEX];
+
     assign m_axil_adap_awvalid[0]                 = axil_awvalid[C_ADAP0_INDEX];
     assign m_axil_adap_awaddr[`getvec(32, 0)]     = axil_adap0_awaddr;
     assign axil_awready[C_ADAP0_INDEX]            = m_axil_adap_awready[0];
@@ -639,6 +708,8 @@ module system_config_address_map #(
     assign axil_rresp[`getvec(2, C_ADAP0_INDEX)]  = m_axil_adap_rresp[`getvec(2, 0)];
     assign m_axil_adap_rready[0]                  = axil_rready[C_ADAP0_INDEX];
 
+
+    //TODO: XX0 with CMAC1 or disable CMAC1 code?? 
     assign m_axil_cmac_awvalid[1]                 = axil_awvalid[C_CMAC1_INDEX];
     assign m_axil_cmac_awaddr[`getvec(32, 1)]     = axil_cmac1_awaddr;
     assign axil_awready[C_CMAC1_INDEX]            = m_axil_cmac_awready[1];

@@ -318,6 +318,7 @@ module system_config #(
   system_config_address_map #(
     .NUM_QDMA   (NUM_QDMA),
     .NUM_CMAC_PORT (NUM_CMAC_PORT)
+    .NUM_XXV_PORT (NUM_XXV_PORT)
   ) scfg_address_map_inst (
     .s_axil_awvalid      (s_axil_awvalid),
     .s_axil_awaddr       (s_axil_awaddr),
@@ -387,6 +388,7 @@ module system_config #(
     .m_axil_adap_rresp   (m_axil_adap_rresp),
     .m_axil_adap_rready  (m_axil_adap_rready),
 
+    //TODO: need to disable CMAC?
     .m_axil_cmac_awvalid (m_axil_cmac_awvalid),
     .m_axil_cmac_awaddr  (m_axil_cmac_awaddr),
     .m_axil_cmac_awready (m_axil_cmac_awready),
@@ -404,22 +406,23 @@ module system_config #(
     .m_axil_cmac_rresp   (m_axil_cmac_rresp),
     .m_axil_cmac_rready  (m_axil_cmac_rready),
 
-    .m_axil_cmac_awvalid (m_axil_cmac_awvalid),
-    .m_axil_cmac_awaddr  (m_axil_cmac_awaddr),
-    .m_axil_cmac_awready (m_axil_cmac_awready),
-    .m_axil_cmac_wvalid  (m_axil_cmac_wvalid),
-    .m_axil_cmac_wdata   (m_axil_cmac_wdata),
-    .m_axil_cmac_wready  (m_axil_cmac_wready),
-    .m_axil_cmac_bvalid  (m_axil_cmac_bvalid),
-    .m_axil_cmac_bresp   (m_axil_cmac_bresp),
-    .m_axil_cmac_bready  (m_axil_cmac_bready),
-    .m_axil_cmac_arvalid (m_axil_cmac_arvalid),
-    .m_axil_cmac_araddr  (m_axil_cmac_araddr),
-    .m_axil_cmac_arready (m_axil_cmac_arready),
-    .m_axil_cmac_rvalid  (m_axil_cmac_rvalid),
-    .m_axil_cmac_rdata   (m_axil_cmac_rdata),
-    .m_axil_cmac_rresp   (m_axil_cmac_rresp),
-    .m_axil_cmac_rready  (m_axil_cmac_rready),
+    //system config address map XXV
+    .m_axil_xxv_awvalid (m_axil_xxv_awvalid),
+    .m_axil_xxv_awaddr  (m_axil_xxv_awaddr),
+    .m_axil_xxv_awready (m_axil_xxv_awready),
+    .m_axil_xxv_wvalid  (m_axil_xxv_wvalid),
+    .m_axil_xxv_wdata   (m_axil_xxv_wdata),
+    .m_axil_xxv_wready  (m_axil_xxv_wready),
+    .m_axil_xxv_bvalid  (m_axil_xxv_bvalid),
+    .m_axil_xxv_bresp   (m_axil_xxv_bresp),
+    .m_axil_xxv_bready  (m_axil_xxv_bready),
+    .m_axil_xxv_arvalid (m_axil_xxv_arvalid),
+    .m_axil_xxv_araddr  (m_axil_xxv_araddr),
+    .m_axil_xxv_arready (m_axil_xxv_arready),
+    .m_axil_xxv_rvalid  (m_axil_xxv_rvalid),
+    .m_axil_xxv_rdata   (m_axil_xxv_rdata),
+    .m_axil_xxv_rresp   (m_axil_xxv_rresp),
+    .m_axil_xxv_rready  (m_axil_xxv_rready),
     
     .m_axil_smon_awvalid (axil_smon_awvalid),
     .m_axil_smon_awaddr  (axil_smon_awaddr),
