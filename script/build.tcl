@@ -87,7 +87,7 @@ set src_dir ${root_dir}/src
 #   num_qdma      Number of QDMA interfaces (1 to 2)
 #   num_queue        Number of QDMA queues (1 to 2048)
 #   num_cmac_port    Number of CMAC ports (1 or 2)
-#
+#   num_xxv_port     Number of XXV  ports (1, 2, 3 oder 4)
 # Simulation parameters
 #   sim_exec_path  Path to directory containing simulator executable
 #   sim_lib_path   Path where simulation libraries should be compiled
@@ -119,6 +119,8 @@ array set design_params {
     -num_qdma         1
     -num_queue        512
     -num_cmac_port    1
+    #TODO: cross verify
+    -num_xxv_port     1
 }
 set design_params(-build_timestamp) [clock format [clock seconds] -format %m%d%H%M]
 
@@ -184,8 +186,13 @@ if {$use_phys_func == 1} {
         exit
     }
 }
+#TODO: need to disable this when XXV is used?
 if {$num_cmac_port != 1 && $num_cmac_port != 2} {
     puts "Invalid value for -num_cmac_port: allowed values are 1 and 2"
+    exit
+}
+if {$num_xxv_port != 1 } {
+    puts "Invalid value for -num_cmac_port: allowed values are only: 1, for now"
     exit
 }
 

@@ -125,6 +125,15 @@ module xxv_subsystem #(
   wire         axis_xxv_rx_tlast;
   wire         axis_xxv_rx_tuser_err;
 
+  //Output of the width converter 512 bits upsized
+  wire         m_axis_xxv_width_up_tvalid;
+  wire [511:0] m_axis_xxv_width_up_tdata;
+  wire  [63:0] m_axis_xxv_width_up_tkeep;
+  wire         m_axis_xxv_width_up_tlast;
+  wire         m_axis_xxv_width_up_tuser_err;
+
+
+
   // Reset is clocked by the 125MHz AXI-Lite clock
   generic_reset #(
     .NUM_INPUT_CLK  (2),
@@ -235,20 +244,51 @@ axi_stream_register_slice #(
   .s_axis_tdata  (axis_xxv_rx_tdata),
   .s_axis_tkeep  (axis_xxv_rx_tkeep),
   .s_axis_tlast  (axis_xxv_rx_tlast),
-  .s_axis_tid    (0),
-  .s_axis_tdest  (0),
+  //.s_axis_tid    (0),
+  //.s_axis_tdest  (0),
   .s_axis_tuser  (axis_xxv_rx_tuser_err),
-  .s_axis_tready (),
+  //.s_axis_tready (),
+
+  //TODO: use this as input to axi width converter instance
+  //TODO: please verify tvalid and tready direction wrt master and slave
   .m_axis_tvalid (m_axis_xxv_rx_tvalid),
   .m_axis_tdata  (m_axis_xxv_rx_tdata),
   .m_axis_tkeep  (m_axis_xxv_rx_tkeep),
   .m_axis_tlast  (m_axis_xxv_rx_tlast),
-  .m_axis_tid    (),
-  .m_axis_tdest  (),
+  //Unused as of now
+  //.m_axis_tid    (),
+  //.m_axis_tdest  (),
   .m_axis_tuser  (m_axis_xxv_rx_tuser_err),
   .m_axis_tready (1'b1),
   .aclk          (xxv_clk),
   .aresetn       (xxv_rstn)
+);
+
+
+axis_dwidth_converter_0 #(
+
+) axis_dwidth_up_converter_inst (
+  //Reference for signals taken from block design dummy configuration
+  
+  .s_axis_tvalid(m_axis_xxv_rx_tvalid),
+  //xxv sends continously, doesnt wait for slaves tready
+  //.s_axis_tready(),  
+  .s_axis_tdata(m_axis_xxv_rx_tdata),
+  .s_axis_tkeep(m_axis_xxv_rx_tkeep),
+  .s_axis_tlast(m_axis_xxv_rx_tlast),
+  .s_axis_tuser(m_axis_xxv_rx_tuser_err),  
+  
+  .aclk(),
+  .aresetn(),
+  .aclken(),
+
+  //define wire types to capture the width converter ouput and feed it to a FIFO 
+  .m_axis_tvalid( m_axis_xxv_width_up_tvalid ),
+  .m_axis_tdata( m_axis_xxv_width_up_tdata ),
+  .m_axis_tkeep( m_axis_xxv_width_up_tkeep ),
+  .m_axis_tlast( m_axis_xxv_width_up_tlast ),
+  .m_axis_tuser( m_axis_xxv_width_up_tuser_err )  
+  
 );
 
 

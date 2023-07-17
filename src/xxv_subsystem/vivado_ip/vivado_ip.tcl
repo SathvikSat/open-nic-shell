@@ -19,6 +19,8 @@ set ips {
     xxv_ethernet_0
     xxv_subsystem_axi_crossbar
 }
+
+#TODO: handle for 4x XXVs
 if {$num_xxv_port == 2} {
     lappend ips "xxv_ethernet_1"
 }

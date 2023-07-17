@@ -46,11 +46,17 @@ module box_322mhz #(
   input      [NUM_CMAC_PORT-1:0] s_axis_adap_tx_322mhz_tuser_err,
   output     [NUM_CMAC_PORT-1:0] s_axis_adap_tx_322mhz_tready,
 
-  output     [NUM_CMAC_PORT-1:0] m_axis_adap_rx_322mhz_tvalid,
-  output [512*NUM_CMAC_PORT-1:0] m_axis_adap_rx_322mhz_tdata,
-  output  [64*NUM_CMAC_PORT-1:0] m_axis_adap_rx_322mhz_tkeep,
-  output     [NUM_CMAC_PORT-1:0] m_axis_adap_rx_322mhz_tlast,
-  output     [NUM_CMAC_PORT-1:0] m_axis_adap_rx_322mhz_tuser_err,
+ // output     [NUM_CMAC_PORT-1:0] m_axis_adap_rx_322mhz_tvalid,
+ // output [512*NUM_CMAC_PORT-1:0] m_axis_adap_rx_322mhz_tdata,
+ // output  [64*NUM_CMAC_PORT-1:0] m_axis_adap_rx_322mhz_tkeep,
+ // output     [NUM_CMAC_PORT-1:0] m_axis_adap_rx_322mhz_tlast,
+ // output     [NUM_CMAC_PORT-1:0] m_axis_adap_rx_322mhz_tuser_err,
+
+  output     [NUM_XXV_PORT-1:0] m_axis_adap_rx_322mhz_tvalid,
+  output [512*NUM_XXV_PORT-1:0] m_axis_adap_rx_322mhz_tdata,
+  output  [64*NUM_XXV_PORT-1:0] m_axis_adap_rx_322mhz_tkeep,
+  output     [NUM_XXV_PORT-1:0] m_axis_adap_rx_322mhz_tlast,
+  output     [NUM_XXV_PORT-1:0] m_axis_adap_rx_322mhz_tuser_err,
 
   output     [NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tvalid,
   output [512*NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tdata,
@@ -70,6 +76,7 @@ module box_322mhz #(
   //NUM_XXV_PORT == 1 (IMPORTANT) 
   //This [512*NUM_XXV_PORT-1:0] format might not work for multiple instaces of 
   //XXV as each XXV is assocaited with a FIFO, cross-check this.
+  
   input      [NUM_XXV_PORT-1:0] s_axis_xxv_fifo_rx_tvalid,
   input  [512*NUM_XXV_PORT-1:0] s_axis_xxv_fifo_rx_tdata,
   input   [64*NUM_XXV_PORT-1:0] s_axis_xxv_fifo_rx_tkeep,
@@ -86,7 +93,13 @@ module box_322mhz #(
 
   // Each CMAC instance has its own phase-independent `cmac_clk`
   input                          axil_aclk,
-  input      [NUM_CMAC_PORT-1:0] cmac_clk
+  //input      [NUM_CMAC_PORT-1:0] cmac_clk,
+  
+  //XXV TODO: xxv_clk handling for packet_adapter and Box at Rx
+  //TODO: xxv_clk unable to access xxv_xlk, cross check this
+  //TODO: check if each XXV instance has its own phase-independent clock
+  input      [NUM_XXV_PORT-1:0] xxv_clk
+
 );
 
   wire internal_box_rstn;

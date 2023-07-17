@@ -209,6 +209,9 @@ the design parameters.
 
     -num_cmac_port   1 (default), 2
                      number of CMAC ports, subjects to the board model.
+    
+    ### TODO: more than 1 port not handled as of now.  
+    -num_xxv_port     1 (default)
 
 ### Build Process
 
