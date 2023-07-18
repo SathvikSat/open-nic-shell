@@ -52,11 +52,14 @@ module xxv_subsystem #(
   input          s_axis_xxv_tx_tuser_err,
   output         s_axis_xxv_tx_tready,
 
-  output         m_axis_xxv_rx_tvalid,
-  output [63:0] m_axis_xxv_rx_tdata,
-  output  [7:0] m_axis_xxv_rx_tkeep,
-  output         m_axis_xxv_rx_tlast,
-  output         m_axis_xxv_rx_tuser_err,
+
+  //actual output of the xxv_subsystem, actual output is fed to box322Mhz
+  //TODO: tready not specified here for final output of xxv_subsystem to box322
+  output         m_axis_xxv_fifo_box322_tvalid, 
+  output [511:0] m_axis_xxv_fifo_box322_tdata,
+  output [63:0]  m_axis_xxv_fifo_box322_tkeep,
+  output         m_axis_xxv_fifo_box322_tlast,
+  output         m_axis_xxv_fifo_box322_tuser_err,
 
   `ifdef __synthesis__
   //TODO:confirm this
@@ -119,11 +122,20 @@ module xxv_subsystem #(
   wire         axis_xxv_tx_tuser_err;
   wire         axis_xxv_tx_tready;
 
+
+//capture the XXV_IP output into below wire
   wire         axis_xxv_rx_tvalid;
   wire [63:0]  axis_xxv_rx_tdata;
   wire  [7:0]  axis_xxv_rx_tkeep;
   wire         axis_xxv_rx_tlast;
   wire         axis_xxv_rx_tuser_err;
+
+  //register slice btw XXV IP and data_wdith upsizer
+  wire         m_axis_xxv_rx_tvalid,
+  wire [63:0]  m_axis_xxv_rx_tdata,
+  wire  [7:0]  m_axis_xxv_rx_tkeep,
+  wire         m_axis_xxv_rx_tlast,
+  wire         m_axis_xxv_rx_tuser_err,
 
   //Output of the width converter 512 bits upsized
   wire         m_axis_xxv_width_up_tvalid;
@@ -132,6 +144,12 @@ module xxv_subsystem #(
   wire         m_axis_xxv_width_up_tlast;
   wire         m_axis_xxv_width_up_tuser_err;
 
+  //TODO: cross check how output of fifo occurs
+  wire         m_axis_xxv_fifo_rx_tvalid;
+  wire [511:0] m_axis_xxv_fifo_rx_tdata;
+  wire  [63:0] m_axis_xxv_fifo_rx_tkeep;
+  wire         m_axis_xxv_fifo_rx_tlast;
+  wire         m_axis_xxv_fifo_rx_tuser_err;
 
 
   // Reset is clocked by the 125MHz AXI-Lite clock
@@ -235,8 +253,12 @@ xxv_subsystem_address_map address_map_inst(
   );
 
 //axi_stream_register_slice() //tx
+
+
+//1st instance of register slice in Rx, getting data from XXV_Ethernet_IP
 axi_stream_register_slice #(
   .TDATA_W (64),
+  //TODO: cross check all signal widths everywhere
   .TUSER_W (1),
   .MODE    ("full")
 ) rx_slice_inst (
@@ -260,13 +282,47 @@ axi_stream_register_slice #(
   //.m_axis_tdest  (),
   .m_axis_tuser  (m_axis_xxv_rx_tuser_err),
   .m_axis_tready (1'b1),
+  //TODO: check the freq here xxv_clk will be 161.xx?
   .aclk          (xxv_clk),
   .aresetn       (xxv_rstn)
 );
 
 
-axis_dwidth_converter_0 #(
+//2nd instance of axi_register slice in rx direction between FIFO out and Box322 In
+axi_stream_register_slice #(
+  .TDATA_W(512),
+  .TUSER_W(48),
+  .MODE("full")
+) rx_slice_inst_fifo_322(
 
+//use the output of fifo as input
+  .s_axis_tvalid (m_axis_xxv_fifo_rx_tvalid),
+  .s_axis_tdata  (m_axis_xxv_fifo_rx_tdata),
+  .s_axis_tkeep  (m_axis_xxv_fifo_rx_tkeep),
+  .s_axis_tlast  (m_axis_xxv_fifo_rx_tlast),
+
+//TODO: for register slice Tuser specififed as parameter?? .TUSER_W(48) ?
+//m_axis_xxv_fifo_tuser_err
+
+//capture the register slice output and feed it to box322Mhz similar to CMAC_subsystem
+.m_axis_tvalid(m_axis_xxv_fifo_box322_tvalid),
+.m_axis_tdata(m_axis_xxv_fifo_box322_tdata),
+.m_axis_tkeep(m_axis_xxv_fifo_box322_tkeep),
+.m_axis_tlast(m_axis_xxv_fifo_box322_tlast),
+.m_axis_tuser(m_axis_xxv_fifo_box322_tuser_err),
+//TODO: cross check no tready?
+//.m_axis_tready(),
+
+
+//TODO: clock of 322Mhz? as fifo output should be 322Mhz rate..
+.aclk(),
+.aresetn()
+);
+
+
+
+axis_dwidth_converter_0 #(
+  //TODO: need to specify parameters?
 ) axis_dwidth_up_converter_inst (
   //Reference for signals taken from block design dummy configuration
   
@@ -291,6 +347,36 @@ axis_dwidth_converter_0 #(
   
 );
 
+axis_data_fifo_0 #(
+
+  //TODO: check the configs in tcl file
+) axis_data_fifo_inst(
+  .s_axis_tdata( m_axis_xxv_width_up_tdata ),
+  .s_axis_tkeep( m_axis_xxv_width_up_tkeep ),
+  //tready for FIFO what if buffer gets full?
+  //.s_axis_tready(),
+  .s_axis_tuser( m_axis_xxv_width_up_tuser_err ),
+  .s_axis_tvalid( m_axis_xxv_width_up_tvalid ),
+  .s_axis_tlast( m_axis_xxv_width_up_tlast ),
+
+  .s_axis_aresetn(),
+  .s_axis_aclk(),
+  .m_axis_aclk(),
+
+  //Capture the output of fifo using wire and feed it to register slice or Box322Mhz for now
+  .m_axis_tdata(m_axis_xxv_fifo_tdata),
+  .m_axis_tkeep(m_axis_xxv_fifo_tkeep),
+  .m_axis_tlast(m_axis_xxv_fifo_tlast),
+  //TODO: check if t_ready will be required?
+  //.m_axis_tready(),
+  .m_axis_tuser(m_axis_xxv_fifo_tuser_err),
+  .m_axis_tvalid(m_axis_xxv_fifo_tvalid)
+
+  );
+
+
+//Tx direction 
+//TODO: axi register slice -> AXI packet fifo -> AXI4 stream Downconverter -> AXI Register Slice -> XXV Ethernet 
 
 
 `ifdef __synthesis__
@@ -320,8 +406,22 @@ xxv_subsystem_xxv_wrapper #(
     .s_axil_rvalid       (axil_xxv_rvalid),
     .s_axil_rready       (axil_xxv_rready),
 
-    //TODO: actual TX and RX data to be handled 
+    //TODO: actual TX and RX data to be handled
+
+    //Rx data coming out of XXV_IP towards width converter/register slice 
+    //TODO: verify these names ".m_axis_rx_tvalid" 
+    .m_axis_rx_tvalid(axis_xxv_rx_tvalid),
+    .m_axis_rx_tdata(axis_xxv_rx_tdata),
+    .m_axis_rx_tkeep(axis_xxv_rx_tkeep),
+    .m_axis_rx_tlast(axis_xxv_rx_tlast),
+    //TODO: check handling of T_user from IP doc and here
+    .m_axis_rx_tuser_err(),
+    //no tready as XXV do not buffer
     
+
+    // TODO: Tx pending
+
+
     .gt_refclk_p         (gt_refclk_p),
     .gt_refclk_n         (gt_refclk_n),
     .xxv_clk             (xxv_clk),
