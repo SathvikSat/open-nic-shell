@@ -17,7 +17,8 @@
 // *************************************************************************
 `timescale 1ns/1ps
 module packet_adapter_rx #(
-  parameter int  CMAC_ID     = 0,
+  parameter int  XXV_ID     = 0,
+  //parameter int  CMAC_ID     = 0,
   parameter int  MIN_PKT_LEN = 64,
   parameter int  MAX_PKT_LEN = 1518,
   parameter real PKT_CAP     = 1.5
@@ -32,6 +33,7 @@ module packet_adapter_rx #(
   output [511:0] m_axis_rx_tdata,
   output  [63:0] m_axis_rx_tkeep,
   output         m_axis_rx_tlast,
+  //TODO: check handling of t_user for mac address/
   output  [15:0] m_axis_rx_tuser_size,
   output  [15:0] m_axis_rx_tuser_src,
   output  [15:0] m_axis_rx_tuser_dst,
@@ -44,10 +46,14 @@ module packet_adapter_rx #(
   output  [15:0] rx_bytes,
 
   input          axis_aclk,
-  input          cmac_clk,
-  input          cmac_rstn
+  //input          cmac_clk,
+  //input          cmac_rstn
+  input          xxv_clk,
+  input          xxv_rstn
+
 );
 
+  //TODO: need to handle this dept for newFIFO
   // FIFO is large enough to fit in at least 1.5 largest packets
   localparam C_FIFO_ADDR_W = $clog2(int'($ceil(real'(MAX_PKT_LEN * 8) / 512 * PKT_CAP)));
   localparam C_FIFO_DEPTH  = 1 << C_FIFO_ADDR_W;
@@ -91,8 +97,10 @@ module packet_adapter_rx #(
     .m_axis_tuser     (axis_buf_tuser_err),
     .m_axis_tready    (1'b1),
 
-    .aclk             (cmac_clk),
-    .aresetn          (cmac_rstn)
+    //.aclk             (cmac_clk),
+    //.aresetn          (cmac_rstn)
+    .aclk             (xxv_clk),
+    .aresetn          (xxv_rstn)
   );
 
   axi_stream_size_counter #(
@@ -107,8 +115,11 @@ module packet_adapter_rx #(
     .size_valid       (),
     .size             (pkt_size),
 
-    .aclk             (cmac_clk),
-    .aresetn          (cmac_rstn)
+    //.aclk             (cmac_clk),
+    //.aresetn          (cmac_rstn)
+    .aclk             (xxv_clk),
+    .aresetn          (xxv_rstn)
+
   );
 
   // Total number of packets from CMAC =
@@ -120,10 +131,12 @@ module packet_adapter_rx #(
 
   // Packets should be dropped when
   // - error bit is asserted (i.e., tuser_err = 1 at the last beat), or
+  //TODO: packet dropping needs to be handled at tx side for XXV?
   // - packet buffer does not have space
   assign drop = (axis_buf_tvalid && axis_buf_tlast && axis_buf_tuser_err) ||
                 (axis_buf_tvalid && ~axis_buf_tready);
 
+  //TODO: CDC depths will change for XXV?
   level_trigger_cdc #(
     .DATA_W     (16),
     .FIFO_DEPTH (64)
@@ -134,11 +147,15 @@ module packet_adapter_rx #(
     .dst_valid (rx_pkt_recv),
     .dst_data  (rx_bytes),
 
-    .src_clk   (cmac_clk),
-    .src_rstn  (cmac_rstn),
+    .src_clk   (xxv_clk),
+    .src_rstn  (xxv_rstn),
+
+    //.src_clk   (cmac_clk),
+    //.src_rstn  (cmac_rstn),
     .dst_clk   (axis_aclk)
   );
 
+  //TODO: fifo depth for xxv perticularly in tx side
   level_trigger_cdc #(
     .FIFO_DEPTH (64)
   ) pkt_drop_cdc_inst (
@@ -148,8 +165,11 @@ module packet_adapter_rx #(
     .dst_valid (rx_pkt_drop),
     .dst_data  (),
 
-    .src_clk   (cmac_clk),
-    .src_rstn  (cmac_rstn),
+    //.src_clk   (cmac_clk),
+    //.src_rstn  (cmac_rstn),
+    .src_clk   (xxv_clk),
+    .src_rstn  (xxv_rstn),
+
     .dst_clk   (axis_aclk)
   );
 
@@ -162,8 +182,11 @@ module packet_adapter_rx #(
     .dst_valid (rx_pkt_err),
     .dst_data  (),
 
-    .src_clk   (cmac_clk),
-    .src_rstn  (cmac_rstn),
+    //.src_clk   (cmac_clk),
+    //.src_rstn  (cmac_rstn),
+    .src_clk   (xxv_clk),
+    .src_rstn  (xxv_rstn),
+
     .dst_clk   (axis_aclk)
   );
 
@@ -197,12 +220,16 @@ module packet_adapter_rx #(
     .m_axis_tuser_size (m_axis_rx_tuser_size),
     .m_axis_tready     (m_axis_rx_tready),
 
-    .s_aclk            (cmac_clk),
-    .s_aresetn         (cmac_rstn),
+    .s_aclk            (xxv_clk),
+    .s_aresetn         (xxv_rstn),
+    //.s_aclk            (cmac_clk),
+    //.s_aresetn         (cmac_rstn),
     .m_aclk            (axis_aclk)
   );
 
-  assign m_axis_rx_tuser_src = 16'h1 << (CMAC_ID + 6);
+  //TODO: cross check this for 1x and later 4x
+  assign m_axis_rx_tuser_src = 16'h1 << (XXV_ID + 6);
+ // assign m_axis_rx_tuser_src = 16'h1 << (CMAC_ID + 6);
   assign m_axis_rx_tuser_dst = 0;
 
 endmodule: packet_adapter_rx

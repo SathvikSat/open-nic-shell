@@ -16,6 +16,7 @@
 //
 // *************************************************************************
 `timescale 1ns/1ps
+//TODO: need to change to packet 161Mhz :xxv_clk
 module box_322mhz #(
   parameter int MIN_PKT_LEN   = 64, //bits ?
   parameter int MAX_PKT_LEN   = 1518,

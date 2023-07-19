@@ -17,16 +17,12 @@
 // *************************************************************************
 `timescale 1ns/1ps
 module xxv_subsystem #(
-    parameter int XXV_ID = 0, //How many instances to use?
-    parameter int MIN_PKT_LEN = 64, //Use in AXI_tdata?
+    parameter int XXV_ID = 0, 
+    parameter int MIN_PKT_LEN = 64, 
     parameter int MAX_PKT_LEN = 1518
 )(
- // Config axi -lite slave signals:
- //YES
- //master for axiLite slave will be ? 
- //1 axiLite set for each CMAC or XXV instance
- //BAR2 is mapped to systemConfig a addr range of BAR2 is used for CMACi same can 
- //be used for XXV
+ 
+ /** NOTE: 1 axiLite set for each CMAC or XXV instance */
 
   input          s_axil_awvalid,
   input   [31:0] s_axil_awaddr,
@@ -45,6 +41,7 @@ module xxv_subsystem #(
   output   [1:0] s_axil_rresp,
   input          s_axil_rready,
 
+  //This might change once tx direction is handled
   input          s_axis_xxv_tx_tvalid,
   input  [63:0] s_axis_xxv_tx_tdata,
   input   [7:0] s_axis_xxv_tx_tkeep,
@@ -53,8 +50,7 @@ module xxv_subsystem #(
   output         s_axis_xxv_tx_tready,
 
 
-  //actual output of the xxv_subsystem, actual output is fed to box322Mhz
-  //TODO: tready not specified here for final output of xxv_subsystem to box322
+  /** actual output of the xxv_subsystem, actual output is fed to box322Mhz read from register slice instance 02 in XXV sub-system */
   output         m_axis_xxv_fifo_box322_tvalid, 
   output [511:0] m_axis_xxv_fifo_box322_tdata,
   output [63:0]  m_axis_xxv_fifo_box322_tkeep,
@@ -62,14 +58,15 @@ module xxv_subsystem #(
   output         m_axis_xxv_fifo_box322_tuser_err,
 
   `ifdef __synthesis__
-  //TODO:confirm this
+  /** for 4 instances of XXV vector size will change later */
   input    [0:0] gt_rxp,
   input    [0:0] gt_rxn,
   output   [0:0] gt_txp,
   output   [0:0] gt_txn,
   input          gt_refclk_p,
   input          gt_refclk_n,
-  output         xxv_clk,
+
+  output    xxv_clk,
 `else
     /** TODO: simulation signals */
 `endif

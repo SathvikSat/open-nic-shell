@@ -17,7 +17,8 @@
 // *************************************************************************
 `timescale 1ns/1ps
 module packet_adapter #(
-  parameter int CMAC_ID     = 0,
+  parameter int XXV_ID     = 0,
+  //parameter int CMAC_ID     = 0,
   parameter int MIN_PKT_LEN = 64,
   parameter int MAX_PKT_LEN = 1518
 ) (
@@ -74,11 +75,15 @@ module packet_adapter #(
 
   input          axil_aclk,
   input          axis_aclk,
-  input          cmac_clk
+  //input          cmac_clk
+  //TODO: not xxv_clk, master_clk of newFIFO used for buffering
+  input          xxv_clk
 );
 
   wire        axil_aresetn;
-  wire        cmac_rstn;
+  //TODO: XXV reset or newFIFO output reset?
+  wire        xxv_rstn;
+  //wire        cmac_rstn;
 
   wire        tx_pkt_sent;
   wire        tx_pkt_drop;
@@ -92,12 +97,15 @@ module packet_adapter #(
   // Reset is clocked by the 125MHz AXI-Lite clock
   generic_reset #(
     .NUM_INPUT_CLK  (2),
+    //TODO: what is this reset duration
     .RESET_DURATION (100)
   ) reset_inst (
     .mod_rstn     (mod_rstn),
     .mod_rst_done (mod_rst_done),
-    .clk          ({cmac_clk, axil_aclk}),
-    .rstn         ({cmac_rstn, axil_aresetn})
+    .clk          ({xxv_clk, axil_aclk}),
+    //.clk          ({cmac_clk, axil_aclk}),
+    .rstn         ({xxv_rstn, axil_aresetn})
+    //.rstn         ({cmac_rstn, axil_aresetn})
   );
 
   packet_adapter_register reg_inst (
@@ -132,8 +140,11 @@ module packet_adapter #(
     .axil_aresetn   (axil_aresetn)
   );
 
+  //TODO: need to change cmac_clk changes, fifo depth enough etc at Tx side of packet 
+  //adapter for XXV
   packet_adapter_tx #(
-    .CMAC_ID     (CMAC_ID),
+    .XXV_ID     (XXV_ID),
+    //.CMAC_ID     (CMAC_ID),
     .MAX_PKT_LEN (MAX_PKT_LEN),
     .PKT_CAP     (1.5)
   ) tx_inst (
@@ -159,11 +170,13 @@ module packet_adapter #(
 
     .axis_aclk            (axis_aclk),
     .axil_aresetn         (axil_aresetn),
-    .cmac_clk             (cmac_clk)
+    .xxv_clk             (xxv_clk)
+    //.cmac_clk             (cmac_clk)
   );
 
   packet_adapter_rx #(
-    .CMAC_ID     (CMAC_ID),
+    .XXV_ID     (XXV_ID),
+    //.CMAC_ID     (CMAC_ID),
     .MAX_PKT_LEN (MAX_PKT_LEN),
     .PKT_CAP     (1.5)
   ) rx_inst (
@@ -188,8 +201,11 @@ module packet_adapter #(
     .rx_bytes             (rx_bytes),
 
     .axis_aclk            (axis_aclk),
-    .cmac_clk             (cmac_clk),
-    .cmac_rstn            (cmac_rstn)
+    //.cmac_clk             (cmac_clk),
+    //.cmac_rstn            (cmac_rstn)
+    .xxv_clk             (xxv_clk),
+    .xxv_rstn            (xxv_rstn)
+
   );
 
 endmodule: packet_adapter

@@ -666,6 +666,7 @@ module open_nic_shell #(
     .m_axil_adap_rresp   (axil_adap_rresp),
     .m_axil_adap_rready  (axil_adap_rready),
 
+    //TODO: comment it for CMAC?
     .m_axil_cmac_awvalid (axil_cmac_awvalid),
     .m_axil_cmac_awaddr  (axil_cmac_awaddr),
     .m_axil_cmac_awready (axil_cmac_awready),
@@ -923,7 +924,8 @@ module open_nic_shell #(
   generate for (genvar i = 0; i < NUM_XXV_PORT; i++) begin: xxv_port
   // generate for (genvar i = 0; i < NUM_CMAC_PORT; i++) begin: cmac_port
     packet_adapter #(
-      .CMAC_ID     (i),
+      .XXV_ID     (i),
+      //.CMAC_ID     (i),
       .MIN_PKT_LEN (MIN_PKT_LEN),
       .MAX_PKT_LEN (MAX_PKT_LEN)
     ) packet_adapter_inst (
@@ -962,6 +964,7 @@ module open_nic_shell #(
       .m_axis_rx_tuser_dst  (axis_adap_rx_250mhz_tuser_dst[`getvec(16, i)]),
       .m_axis_rx_tready     (axis_adap_rx_250mhz_tready[i]),
 
+      //TODO: need to change to 161 Mhz
       .m_axis_tx_tvalid     (axis_adap_tx_322mhz_tvalid[i]),
       .m_axis_tx_tdata      (axis_adap_tx_322mhz_tdata[`getvec(512, i)]),
       .m_axis_tx_tkeep      (axis_adap_tx_322mhz_tkeep[`getvec(64, i)]),
@@ -980,8 +983,11 @@ module open_nic_shell #(
 
       .axil_aclk            (axil_aclk[0]),
       .axis_aclk            (axis_aclk[0]),
-      .cmac_clk             (cmac_clk[i])
+      //TODO: need to change this
+      //.cmac_clk             (cmac_clk[i])
+      .xxv_clk             (xxv_clk[i])
     );
+
     
   xxv_subsystem #(
     .XXV_ID (i),
@@ -1021,19 +1027,13 @@ module open_nic_shell #(
   );
 
 
-//TODO: use this for FIFO instance output 
-axis_xxv_fifo_rx_tvalid
-axis_xxv_fifo_rx_tdata
-axis_xxv_fifo_rx_tkeep
-axis_xxv_fifo_rx_tlast
-axis_xxv_fifo_rx_tuser_err
-
-
-
-
-
-
-
+////TODO: use this for FIFO instance output 
+//axis_xxv_fifo_rx_tvalid
+//axis_xxv_fifo_rx_tdata
+//axis_xxv_fifo_rx_tkeep
+//axis_xxv_fifo_rx_tlast
+//axis_xxv_fifo_rx_tuser_err
+/**
     cmac_subsystem #(
       .CMAC_ID     (i),
       .MIN_PKT_LEN (MIN_PKT_LEN),
@@ -1068,14 +1068,6 @@ axis_xxv_fifo_rx_tuser_err
       .m_axis_cmac_rx_tkeep         (axis_cmac_rx_tkeep[`getvec(64, i)]),
       .m_axis_cmac_rx_tlast         (axis_cmac_rx_tlast[i]),
       .m_axis_cmac_rx_tuser_err     (axis_cmac_rx_tuser_err[i]),
-
-
-
-
-
-
-     
-
 
 `ifdef __synthesis__
       .gt_rxp                       (qsfp_rxp[`getvec(4, i)]),
@@ -1114,6 +1106,7 @@ axis_xxv_fifo_rx_tuser_err
       .mod_rst_done                 (cmac_rst_done[i]),
       .axil_aclk                    (axil_aclk[0])
     );
+    */
   //end: cmac_port
   end: xxv_port
 

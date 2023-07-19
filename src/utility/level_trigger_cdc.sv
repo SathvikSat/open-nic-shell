@@ -21,6 +21,9 @@
 // domain with the same width.  A common usecase is to synchronize counter
 // increment signal from a different clock domain.
 // 
+
+//TODO: this depth needs to be handled properly in XXV especially for Tx direction
+
 // The implementation uses an asynchronous FIFO.  The depth should be large
 // enough so that no event in the source domain will be missed.  When
 // `src_valid` is asserted while the FIFO is full, `src_miss` will be asserted
