@@ -365,7 +365,7 @@ module cmac_subsystem_cmac_wrapper #(
       .gt_txn_out                          (gt_txn),
 
       .gt_ref_clk_p                        (gt_refclk_p),
-      .gt_ref_clk_n                        (gt_refclk_n),
+      .gt_ref_clk_n         qpll1clk_in               (gt_refclk_n),
 `endif
       .gt_ref_clk_out                      (),
       .gt_rxrecclkout                      (),
@@ -401,11 +401,7 @@ module cmac_subsystem_cmac_wrapper #(
       .s_axi_araddr                        (s_axil_araddr),
       .s_axi_arready                       (s_axil_arready),
       .s_axi_rvalid                        (s_axil_rvalid),
-      .s_axi_rdata                         (s_axil_rdata),
-      .s_axi_rresp                         (s_axil_rresp),
-      .s_axi_rready                        (s_axil_rready),
-      .pm_tick                             (pm_tick),
-      .user_reg0                           (),
+      .s_axi_rdataqpll1clk_in                          (),
 
       .rx_axis_tvalid                      (m_axis_rx_tvalid),
       .rx_axis_tdata                       (m_axis_rx_tdata),

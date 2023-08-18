@@ -541,6 +541,7 @@ module open_nic_shell #(
   assign shell_rst_done[NUM_QDMA-1:0] = qdma_rst_done;
   assign shell_rst_done[3:NUM_QDMA]   = {4-NUM_QDMA{1'b1}};
 
+  //TODO: check these for CMAC
   // For each CMAC port, use the subsequent 4-bit: bit 0 for CMAC subsystem and
   // bit 1 for the corresponding adapter
   generate for (genvar i = 0; i < NUM_CMAC_PORT; i++) begin: cmac_rst
@@ -1012,6 +1013,7 @@ module open_nic_shell #(
     .s_axil_rready        (axil_xxv_rready[i]),
 
 
+    //TODO: handle tx data
 
      //TODO: fifo_rx_tdata is not output of xxv_subsystem!!
       //TODO: these are output of instances of packet data fifo
@@ -1019,10 +1021,13 @@ module open_nic_shell #(
     .m_axis_xxv_rx_tvalid       (axis_cmac_rx_tvalid[i]),
     //TODO: handle signal width change, before width converter and after 
     //width coverter
-    .m_axis_xxv_rx_tdata        (axis_cmac_rx_tdata[`getvec(64, i)]),
-    .m_axis_xxv_rx_tkeep        (axis_cmac_rx_tkeep[`getvec(8, i)]),
-    .m_axis_xxv_rx_tlast        (axis_cmac_rx_tlast[i]),
-    .m_axis_xxv_rx_tuser_err    (axis_cmac_rx_tuser_err[i]),
+    
+    //TODO: not 64, but 512?
+    .m_axis_xxv_rx_tdata        (axis_xxv_fifo_rx_tdata[`getvec(64, i)]),
+    .m_axis_xxv_rx_tkeep        (axis_xxv_fifo_rx_tkeep[`getvec(8, i)]),
+    .m_axis_xxv_rx_tlast        (axis_xxv_fifo_rx_tlast[i]),
+    .m_axis_xxv_rx_tuser_err    (axis_xxv_fifo_rx_tuser_err[i]),
+    .ref_clk_100mhz             (ref_clk_100mhz)
 
   );
 

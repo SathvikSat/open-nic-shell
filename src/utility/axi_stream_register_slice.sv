@@ -31,7 +31,7 @@
 // regions with relaxed slack, or in the case that a single cycle delay is
 // needed for synchronization purpose.
 `timescale 1ns/1ps
-
+//TODO:p2p signals needs to be changed!!!
 //TODO: decoupling master and slave axi streams
 module axi_stream_register_slice #(
   parameter int TDATA_W = 512,
@@ -103,6 +103,7 @@ module axi_stream_register_slice #(
       else begin
         case (filled)
           1'b0: begin
+            
             if (s_axis_tvalid) begin
               axis_tdata <= s_axis_tdata;
               axis_tkeep <= s_axis_tkeep;

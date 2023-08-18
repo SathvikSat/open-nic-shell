@@ -155,7 +155,7 @@ module p2p_322mhz #(
       .TUSER_W (1),
       .MODE    ("full")
     ) tx_slice_1_inst (
-      .s_axis_tvalid (axis_adap_tx_322mhz_tvalid[i]),
+      .s_axis_tvalid (axis_adam_axis_cmac_tx_tdatap_tx_322mhz_tvalid[i]),
       .s_axis_tdata  (axis_adap_tx_322mhz_tdata[`getvec(512, i)]),
       .s_axis_tkeep  (axis_adap_tx_322mhz_tkeep[`getvec(64, i)]),
       .s_axis_tlast  (axis_adap_tx_322mhz_tlast[i]),

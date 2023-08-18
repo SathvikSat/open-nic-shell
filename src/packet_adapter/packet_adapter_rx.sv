@@ -184,7 +184,7 @@ module packet_adapter_rx #(
 
     //.src_clk   (cmac_clk),
     //.src_rstn  (cmac_rstn),
-    .src_clk   (xxv_clk),
+    .src_clk   (xxv_clk), //TODO: not xxv, external 322Mhz
     .src_rstn  (xxv_rstn),
 
     .dst_clk   (axis_aclk)

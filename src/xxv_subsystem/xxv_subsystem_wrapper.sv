@@ -61,28 +61,58 @@ module xxv_subsystem_xxv_wrapper #(
     
     output         xxv_clk,
     input          xxv_sys_reset,
-    input          axil_aclk
+    input          axil_aclk,
+    input          ref_clk_100mhz
 
 );
 
   wire tx_clk_out_0;
+  wire rx_clk_out_0;
+  wire rxrecclkout_0;
+
+  //Regardless of AXI lite port; needs to be set 
+  wire ctl_tx_send_idle;
+  wire ctl_tx_send_rfi;
+  wire ctl_tx_send_lfi; 
+
+
+
   assign xxv_clk = tx_clk_out_0;
-  generateif (XXV_ID == 0 ) begin
+  assign ctl_tx_send_idle        = 1'b0;
+  assign ctl_tx_send_rfi         = 1'b0;
+  assign ctl_tx_send_lfi         = 1'b0; 
+  
+  generate if (XXV_ID == 0 ) begin
     xxv_ethernet_0 xxv_inst(
     .gt_rxp_in                           (gt_rxp),
     .gt_rxn_in                           (gt_rxn),
     .gt_txp_out                          (gt_txp),
     .gt_txn_out                          (gt_txn),
 
-    //Inputs, 1bit
-    //.sys_reset(xxv_sys_reset)
-    //.dlck() //100Mhz
-    .sys_reset_0(xxv_sys_reset)
+    /** Inputs, 1bit */
+    /**
+     * This port is available when the Include GT subcore option in the 
+     * example design is selected
+     */
+    .sys_reset(xxv_sys_reset),
+    //External 100Mhz source verify this clk 100Mhz?
+    /**
+      * This port is available when the Include GT subcore in example design 
+      * option is selected
+      */
+    .dlck(ref_clk_100mhz), //TODO: 100Mhz ?
+    //.sys_reset_0(xxv_sys_reset),
     
-    //External 100Mhz source
-    .dlck_0()
-    .clk_322()
-    .locked_out_322()
+    
+    /**
+     * The port is available when Soft RS-FEC TX and Hard RS-FEC RX options are enabled
+     *
+     */
+    //.dlck_0                              (ref_clk_100mhz),
+    
+    //.clk_322()
+    //.locked_out_322()
+    
     .gt_ref_clk_p                        (gt_refclk_p),
     .gt_ref_clk_n                        (gt_refclk_n),
     
@@ -100,22 +130,39 @@ module xxv_subsystem_xxv_wrapper #(
     //output signals 1bit
     //.gtwiz_reset_qpll1reset_out()
     
-    .tx_clk_out_0(tx_clk_out_0)
+    /** TX user clock output from GT. */
+    /** tx_clk_out_0 for axi stream data clocking == tc_serdes_refclk == 156.25Mhz */
+    .tx_clk_out_0(tx_clk_out_0),
     
     //ASK: check IP version
-    .tx_mii_clk_0()
-    .rx_clk_out_0()
+
+    /** This interface is used to connect to the physical layer, 
+      * where this is a separate device or implemented in the 
+      * FPGA beside the Ethernet MAC core.
+      */
+    //.tx_mii_clk_0()
+
+    /** rx_serdes_clk
+    * The rx_serdes_clk is derived from the incoming data stream within the GT block. 
+    * The incoming data stream is processed by the RX core in this clock domain.
+    *
+    * rx_clk_out
+    * The rx_clk_out output signal is presented as a reference for the RX control 
+    * and status signals processed by the RX core. It is the same frequency as the rx_serdes_clk.
+    *
+    */
+    .rx_clk_out_0(rx_clk_out),
     
-    //input
-    .rx_serdes_clk_0()
-    .rx_serdes_reset_0()
+    /** With example design */
+    //.rx_serdes_clk_0()
+    //.rx_serdes_reset_0()
 
     //output
-    .rxrecclkout_0()
+    .rxrecclkout_0(rxrecclkout_0),
 
-    //input
-    .tx_core_clk_0()
-    .rx_core_clk_0()
+    //input When include GT sub-core in example design
+    //.tx_core_clk_0()
+    .rx_core_clk_0(tx_clk_out_0) //tx and rx streams in same clock domain
     .tx_reset_0()
 
     //output
@@ -135,7 +182,7 @@ module xxv_subsystem_xxv_wrapper #(
     //Out
     ctl_gt_reset_all_0()
 
-    gtwiz_tx_datapath_reset_in_0()
+    .gtwiz_tx_datapath_reset_in_0(gtwiz_reset_tx_datapath)
     
     //Out
     ctl_gt_tx_reset_0()
@@ -248,8 +295,21 @@ module xxv_subsystem_xxv_wrapper #(
     //test
 
     //control/status/statistics signals not handled
-    )
-  end
+      .ctl_tx_send_idle                    (ctl_tx_send_idle),
+      .ctl_tx_send_rfi                     (ctl_tx_send_rfi),
+      .ctl_tx_send_lfi                     (ctl_tx_send_lfi)
 
-endmodule:
+  // Note: all other control signals are handled via AXI lite interface
+    //TODO: does that mean just no external signal, but the signal still needs to be handled?
+    //TODO: How is value received from AXI lite assigned, well axi_addr etc signals!
+
+    //stat signals are all output.
+
+    //Enable Tx flow control is not handled as of now 
+
+    )
+  end 
+  endgenerate
+
+endmodule:xxv_subsystem_xxv_wrapper
 

@@ -150,7 +150,7 @@ module cmac_subsystem #(
     .rstn         ({cmac_rstn, axil_aresetn})
   );
 
-  cmac_subsystem_address_map address_map_inst (
+  cmac_subsystem_address_map aCandid?ddress_map_inst (
     .s_axil_awvalid      (s_axil_awvalid),
     .s_axil_awaddr       (s_axil_awaddr),
     .s_axil_awready      (s_axil_awready),
