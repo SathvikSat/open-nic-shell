@@ -33,7 +33,7 @@ module cmac_subsystem #(
   input          s_axil_arvalid,
   input   [31:0] s_axil_araddr,
   output         s_axil_arready,
-  output         s_axil_rvalid,
+  output         s_axil_rvals_axis_cmac_tx_tdataid,
   output  [31:0] s_axil_rdata,
   output   [1:0] s_axil_rresp,
   input          s_axil_rready,

@@ -19,7 +19,9 @@
 module xxv_subsystem #(
     parameter int XXV_ID = 0, 
     parameter int MIN_PKT_LEN = 64, 
-    parameter int MAX_PKT_LEN = 1518
+    parameter int MAX_PKT_LEN = 1518,
+    //TODO: pass this PKT_CAP parameter
+    parameter int PKT_CAP = 1.5
 )(
  
  /** NOTE: 1 axiLite set for each CMAC or XXV instance */
@@ -51,10 +53,11 @@ module xxv_subsystem #(
 
   //Input to xxv_subsystem from Tx side post box_322Mhz
   input          s_axis_xxv_box322_fifo_tvalid,
-  input  [63:0]  s_axis_xxv_box322_fifo_tdata,
-  input   [7:0]  s_axis_xxv_box322_fifo_tkeep,
+  input  [511:0] s_axis_xxv_box322_fifo_tdata,
+  input   [63:0] s_axis_xxv_box322_fifo_tkeep,
   input          s_axis_xxv_box322_fifo_tlast,
   input          s_axis_xxv_box322_fifo_tuser_err,
+  input  [15:0]  s_axis_xxv_box322_fifo_tuser_dst;
   output         s_axis_xxv_box322_fifo_tready,
 
 
@@ -65,6 +68,9 @@ module xxv_subsystem #(
   output [63:0]  m_axis_xxv_fifo_box322_tkeep,
   output         m_axis_xxv_fifo_box322_tlast,
   output         m_axis_xxv_fifo_box322_tuser_err,
+
+  //output []
+  
 
   `ifdef __synthesis__
   /** for 4 instances of XXV vector size will change later */
@@ -85,6 +91,152 @@ module xxv_subsystem #(
   //TODO: verify this, src for ref_clk_100mhz      
   input          ref_clk_100mhz
 );
+
+wire         bad_dst;
+wire         dropping;
+reg          pkt_started;
+reg          dropping_more;
+
+/** For XXV Rx side buffering */
+localparam XXV_FIFO_RX_ADDR_W = $clog2(int'($ceil(real'( MAX_PKT_LEN * 8* 3) / 512 * PKT_CAP)));
+localparam XXV_FIFO_RX_DEPTH  = 1 << XXV_FIFO_ADDR_W;
+
+wire         drop;
+wire         drop_busy;
+
+
+/** For Rx output signals rcvd from Width Up converter */
+assign drop = (m_axis_xxv_width_up_tvalid && m_axis_xxv_width_up_tlast && m_axis_xxv_width_up_tuser_err );
+              /** No ready minotored here, always set to 1, ref open-NIC-shell doc */
+              /** || (axis_buf_tvalid && ~axis_buf_tready); */
+
+/** For XXV Rx side buffering with drop feature */
+ axi_stream_packet_buffer #(
+    .CLOCKING_MODE   ("independent_clock"),
+    //TODO: creteria for CDC stages?
+    .CDC_SYNC_STAGES (2),
+    //TODO: verify data width in rx for all locations
+    .TDATA_W         (512),
+    .MIN_PKT_LEN     (MIN_PKT_LEN),
+    .MAX_PKT_LEN     (MAX_PKT_LEN),
+    .PKT_CAP         (PKT_CAP)
+ ) xxv_pkt_buf_rx_fifo_with_drop_inst (
+    .s_axis_tvalid     (m_axis_xxv_width_up_tvalid),
+    .s_axis_tdata      (m_axis_xxv_width_up_tdata),
+    .s_axis_tkeep      (m_axis_xxv_width_up_tkeep),
+    .s_axis_tlast      (m_axis_xxv_width_up_tlast),
+    .s_axis_tid        (0),
+    .s_axis_tdest      (0),
+    //TODO: m_axis_xxv_width_up_tuser_err
+    .s_axis_tuser      (0),
+    //TODO: tready not needed here?
+    //.s_axis_tready     (axis_buf_tready),
+
+  //In rx it is good to have drop feature?
+  .drop(drop),
+
+  /** Output */
+  .drop_busy (drop_busy),
+
+  .m_axis_tvalid     (m_axis_xxv_fifo_rx_tvalid),
+  .m_axis_tdata      (m_axis_xxv_fifo_rx_tdata),
+  .m_axis_tkeep      (m_axis_xxv_fifo_rx_tkeep),
+  .m_axis_tlast      (m_axis_xxv_fifo_rx_tlast),
+  .m_axis_tid        (),
+  .m_axis_tdest      (),
+  //TODO: verify user err signal usage
+  .m_axis_tuser      (m_axis_xxv_fifo_rx_tuser_err),
+  //TODO: verify user_size output signal for side band information : MAC addr provider?
+  .m_axis_tuser_size (m_axis_rx_tuser_size),
+  /** Ready always set high in Rx */
+  //.m_axis_tready     (m_axis_rx_tready),
+
+  
+ //todo: Verify usage of right clk 
+ .s_aclk            (xxv_clk),
+ .s_aresetn         (xxv_rstn),
+ //TODO: No need of async clk here?
+ .m_aclk            ( xxv_clk /**a xis_aclk */)
+
+);
+
+//TODO: need to assign actual value to axis_xxv_box322_fifo_tuser_dst
+assign bad_dst = ((axis_xxv_box322_fifo_tuser_dst & (16'h1 << (XXV_ID + 6))) == 0); 
+assign dropping = (~pkt_started && axis_xxv_box322_fifo_tvalid && axis_xxv_box322_fifo_tready && bad_dst) || dropping_more;
+
+
+/** Perhaps not needed */
+ always @(posedge axis_aclk) begin
+    if (~axil_aresetn) begin
+      pkt_started   <= 1'b0;
+      dropping_more <= 1'b0;
+    end
+    else if (~pkt_started && axis_tx_tvalid && axis_tx_tready) begin
+      if (axis_tx_tlast) begin
+        pkt_started   <= 1'b0;
+        dropping_more <= 1'b0;
+      end
+      else begin
+        pkt_started   <= 1'b1;
+        dropping_more <= bad_dst;
+      end
+    end
+    else if (axis_tx_tvalid && axis_tx_tlast && axis_tx_tready) begin
+      pkt_started   <= 1'b0;
+      dropping_more <= 1'b0;
+    end
+  end
+
+
+/** For XXV Tx side buffering/FIFO after down conversion of transfers */
+axi_stream_packet_fifo #(
+    .CDC_SYNC_STAGES  (2),
+    .CLOCKING_MODE    ("independent_clock"),
+    .ECC_MODE         ("no_ecc"),
+    .FIFO_DEPTH       (XXV_FIFO_DEPTH),
+    .FIFO_MEMORY_TYPE ("auto"),
+    .RELATED_CLOCKS   (0),
+    //TODO: verify data_widths
+    .TDATA_WIDTH      (64)
+  ) tx_cdc_fifo_inst (
+
+    .s_axis_tvalid      (axis_xxv_box322_fifo_tvalid && ~dropping),
+    .s_axis_tdata       (axis_xxv_box322_fifo_tdata),
+    .s_axis_tkeep       (axis_xxv_box322_fifo_tkeep),
+    .s_axis_tstrb       ({64{1'b1}}),
+    .s_axis_tlast       (axis_xxv_box322_fifo_tlast),
+    .s_axis_tuser       (0),
+    .s_axis_tid         (0),
+    .s_axis_tdest       (0),
+    .s_axis_tready      (axis_xxv_box322_fifo_tready),
+
+    .m_axis_tvalid      (),
+    .m_axis_tdata       (),
+    .m_axis_tkeep       (),
+    .m_axis_tstrb       (),
+    .m_axis_tlast       (),
+    .m_axis_tuser       (),
+    .m_axis_tid         (),
+    .m_axis_tdest       (),
+    .m_axis_tready      (),
+
+    .almost_empty_axis  (),
+    .prog_empty_axis    (),
+    .almost_full_axis   (),
+    .prog_full_axis     (),
+    .wr_data_count_axis (),
+    .rd_data_count_axis (),
+
+    .injectsbiterr_axis (),
+    .injectdbiterr_axis (),
+    .sbiterr_axis       (),
+    .dbiterr_axis       (),
+
+    .s_aclk             (),
+    .m_aclk             (),
+    .s_aresetn          ()
+
+  );
 
   wire axil_aresetn;
   wire xxv_rstn;
@@ -111,7 +263,7 @@ module xxv_subsystem #(
   wire         axil_qsfp_awready;
   wire  [31:0] axil_qsfp_wdata;
   wire         axil_qsfp_wvalid;
-  wire         axil_qsfp_wready;
+  wire        fifoaxil_qsfp_wready;
   wire   [1:0] axil_qsfp_bresp;
   wire         axil_qsfp_bvalid;
   wire         axil_qsfp_bready;
@@ -123,7 +275,17 @@ module xxv_subsystem #(
   wire         axil_qsfp_rvalid;
   wire         axil_qsfp_rready;
 
-//Input to the XXV_IP in tx from this wire
+  //Output of register slice in Tx btw Box322 and FIFO captured here
+  wire axis_xxv_box322_fifo_tvalid,
+  wire axis_xxv_box322_fifo_tdata,
+  wire axis_xxv_box322_fifo_tkeep,
+  wire axis_xxv_box322_fifo_tlast,
+  wire axis_xxv_box322_fifo_tuser_dst,
+  wire axis_xxv_box322_fifo_tuser_err,
+  wire axis_xxv_box322_fifo_tready
+  
+
+//Input to the .... TODO
   wire         axis_xxv_tx_tvalid;
   wire [63:0]  axis_xxv_tx_tdata;
   wire  [7:0]  axis_xxv_tx_tkeep;
@@ -270,8 +432,46 @@ xxv_subsystem_address_map address_map_inst(
     .aclk           (axil_aclk)
   );
 
-//axi_stream_register_slice() //tx
+//1st instance of axi_stream_register_slice btw 322 and FIFO //tx
+  input          ,
+  input  [511:0] ,
+  input   [63:0] ,
+  input          ,
+  input          ,
+  output         ,
+axi_stream_register_slice #(
+  .TDATA_W (512),
+  //TODO: cross check all signal widths everywhere
+  //TODO: address Tuser_W
+  .TUSER_W (1),
+  .MODE    ("full")
+) tx_slice_322_fifo_inst (
+  .s_axis_tvalid (s_axis_xxv_box322_fifo_tvalid),
+  .s_axis_tdata  (s_axis_xxv_box322_fifo_tdata),
+  .s_axis_tkeep  (s_axis_xxv_box322_fifo_tkeep),
+  .s_axis_tlast  (s_axis_xxv_box322_fifo_tlast),
+  //.s_axis_tid    (0),
+  .s_axis_tdest  (s_axis_xxv_box322_fifo_tuser_dst),
+  //TODO: verify tuser
+  .s_axis_tuser  (s_axis_xxv_box322_fifo_tuser_err),
+  .s_axis_tready (s_axis_xxv_box322_fifo_tready)
 
+
+  //TODO: use this as input to axi width converter instance
+  //TODO: please verify tvalid and tready direction wrt master and slave
+  .m_axis_tvalid (axis_xxv_box322_fifo_tvalid),
+  .m_axis_tdata  (axis_xxv_box322_fifo_tdata),
+  .m_axis_tkeep  (axis_xxv_box322_fifo_tkeep),
+  .m_axis_tlast  (axis_xxv_box322_fifo_tlast),
+  //Unused as of now
+  //.m_axis_tid    (),
+  //.m_axis_tdest  (),
+  .m_axis_tuser  (axis_xxv_box322_fifo_tuser_err),
+  .m_axis_tready (axis_xxv_box322_fifo_tready),
+  //TODO: check the freq here xxv_clk will be 161.xx?
+  .aclk          (),
+  .aresetn       ()
+);
 
 //1st instance of register slice in Rx, getting data from XXV_Ethernet_IP
 axi_stream_register_slice #(
@@ -297,7 +497,7 @@ axi_stream_register_slice #(
   .m_axis_tlast  (m_axis_xxv_rx_tlast),
   //Unused as of now
   //.m_axis_tid    (),
-  //.m_axis_tdest  (),
+  .m_axis_tdest  (axis_xxv_box322_fifo_tuser_dst),
   .m_axis_tuser  (m_axis_xxv_rx_tuser_err),
   .m_axis_tready (1'b1),
   //TODO: check the freq here xxv_clk will be 161.xx?
@@ -359,10 +559,10 @@ axis_dwidth_converter_0 #(
 
   //define wire types to capture the width converter ouput and feed it to a FIFO 
   .m_axis_tvalid( m_axis_xxv_width_up_tvalid ),
-  .m_axis_tdata( m_axis_xxv_width_up_tdata ),
-  .m_axis_tkeep( m_axis_xxv_width_up_tkeep ),
-  .m_axis_tlast( m_axis_xxv_width_up_tlast ),
-  .m_axis_tuser( m_axis_xxv_width_up_tuser_err )  
+  .m_axis_tdata(  m_axis_xxv_width_up_tdata ),
+  .m_axis_tkeep(  m_axis_xxv_width_up_tkeep ),
+  .m_axis_tlast(  m_axis_xxv_width_up_tlast ),
+  .m_axis_tuser(  m_axis_xxv_width_up_tuser_err )  
   
 );
 
@@ -384,6 +584,7 @@ axis_dwidth_converter_0 #(
   .aresetn(),
   .aclken(),
 
+  //TODO: verify the widths after downconversion
   //define wire types to capture the width converter ouput and feed it to a RegSlice towards XXV IP 
   .m_axis_tvalid( s_axis_xxv_width_down_tvalid ),
   .m_axis_tdata(  s_axis_xxv_width_down_tdata ),
@@ -393,33 +594,50 @@ axis_dwidth_converter_0 #(
   
 );
 
-axis_data_fifo_0 #(
 
-  //TODO: check the configs in tcl file
-) axis_data_fifo_inst(
-  .s_axis_tdata( m_axis_xxv_width_up_tdata ),
-  .s_axis_tkeep( m_axis_xxv_width_up_tkeep ),
-  //tready for FIFO what if buffer gets full?
-  //.s_axis_tready(),
-  .s_axis_tuser( m_axis_xxv_width_up_tuser_err ),
-  .s_axis_tvalid( m_axis_xxv_width_up_tvalid ),
-  .s_axis_tlast( m_axis_xxv_width_up_tlast ),
+axi_stream_packet_fifo #(
+  //CDC stage creteria
+  .CDC_SYNC_STAGES  (2),
+  .CLOCKING_MODE    ("independent_clock"),
+  .ECC_MODE         ("no_ecc"),
+  .FIFO_DEPTH       (C_FIFO_DEPTH),
+  .FIFO_MEMORY_TYPE ("auto"),
+  .RELATED_CLOCKS   (0),
+  .TDATA_WIDTH      (512)
 
-  .s_axis_aresetn(),
-  .s_axis_aclk(),
-  .m_axis_aclk(),
+);
 
-  //Capture the output of fifo using wire and feed it to register slice or Box322Mhz for now
-  .m_axis_tdata(m_axis_xxv_fifo_rx_tdata),
-  .m_axis_tkeep(m_axis_xxv_fifo_rx_tkeep),
-  .m_axis_tlast(m_axis_xxv_fifo_rx_tlast),
-  //TODO: check if t_ready will be required?
-  //.m_axis_tready(),
-  .m_axis_tuser(m_axis_xxv_fifo_rx_tuser_err),
-  //TODO: verify is valid is mapped to valid for all axi signals everywhere
-  .m_axis_tvalid(m_axis_xxv_fifo_rx_tvalid)
 
-  );
+
+
+//Remove this as axi_stream_packet_buffer module is used instead in Rx
+//axis_data_fifo_0 #(
+//
+//  //TODO: check the configs in tcl file
+//) axis_data_fifo_inst(
+//  .s_axis_tdata( m_axis_xxv_width_up_tdata ),
+//  .s_axis_tkeep( m_axis_xxv_width_up_tkeep ),
+//  //tready for FIFO what if buffer gets full?
+//  //.s_axis_tready(),
+//  .s_axis_tuser( m_axis_xxv_width_up_tuser_err ),
+//  .s_axis_tvalid( m_axis_xxv_width_up_tvalid ),
+//  .s_axis_tlast( m_axis_xxv_width_up_tlast ),
+//
+//  .s_axis_aresetn(),
+//  .s_axis_aclk(),
+//  .m_axis_aclk(),
+//
+//  //Capture the output of fifo using wire and feed it to register slice or Box322Mhz for now
+//  .m_axis_tdata(m_axis_xxv_fifo_rx_tdata),
+//  .m_axis_tkeep(m_axis_xxv_fifo_rx_tkeep),
+//  .m_axis_tlast(m_axis_xxv_fifo_rx_tlast),
+//  //TODO: check if t_ready will be required?
+//  //.m_axis_tready(),
+//  .m_axis_tuser(m_axis_xxv_fifo_rx_tuser_err),
+//  //TODO: verify is valid is mapped to valid for all axi signals everywhere
+//  .m_axis_tvalid(m_axis_xxv_fifo_rx_tvalid)
+//
+//  );
 
 
 //Tx direction 
