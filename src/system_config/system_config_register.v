@@ -36,6 +36,7 @@
 // -----------------------------------------------------------------------------
 //   0x018  |  RO  | User status register
 // -----------------------------------------------------------------------------
+/** TODO: check system level address for packet adapter with XXV */
 `timescale 1ns/1ps
 module system_config_register #(
   parameter [31:0] BUILD_TIMESTAMP = 32'h01010000

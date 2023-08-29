@@ -64,7 +64,7 @@ module xxv_subsystem_address_map(
   input   [1:0] m_axil_xxv_rresp,
   output        m_axil_xxv_rready,
 
-ifdef DISABLED_CODE
+`ifdef DISABLED_CODE_CMAC
  
   output        m_axil_qsfp_awvalid,
   output [31:0] m_axil_qsfp_awaddr,
@@ -82,7 +82,7 @@ ifdef DISABLED_CODE
   input  [31:0] m_axil_qsfp_rdata,
   input   [1:0] m_axil_qsfp_rresp,
   output        m_axil_qsfp_rready,
-`endif 
+`endif /** __DISABLED_CODE_CMAC__ */
 
   input         aclk,
   input         aresetn

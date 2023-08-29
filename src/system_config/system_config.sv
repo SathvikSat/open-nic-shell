@@ -19,7 +19,11 @@
 module system_config #(
   parameter [31:0] BUILD_TIMESTAMP = 32'h01010000,
   parameter int    NUM_QDMA     = 1,
-  parameter int    NUM_CMAC_PORT   = 1
+`ifdef DISABLED_CODE_CMAC  
+  parameter int    NUM_CMAC_PORT   = 1,
+`else
+  parameter int    NUM_XXV_PORT   = 1
+`endif /** DISABLED_CODE_CMAC */
 ) (
   input          [NUM_QDMA-1:0] s_axil_awvalid,
   input       [32*NUM_QDMA-1:0] s_axil_awaddr,
@@ -55,6 +59,7 @@ module system_config #(
   input        [2*NUM_QDMA-1:0] m_axil_qdma_rresp,
   output         [NUM_QDMA-1:0] m_axil_qdma_rready,
 
+`ifdef DISABLED_CODE_CMAC
   output    [NUM_CMAC_PORT-1:0] m_axil_adap_awvalid,
   output [32*NUM_CMAC_PORT-1:0] m_axil_adap_awaddr,
   input     [NUM_CMAC_PORT-1:0] m_axil_adap_awready,
@@ -71,7 +76,28 @@ module system_config #(
   input  [32*NUM_CMAC_PORT-1:0] m_axil_adap_rdata,
   input   [2*NUM_CMAC_PORT-1:0] m_axil_adap_rresp,
   output    [NUM_CMAC_PORT-1:0] m_axil_adap_rready,
+`else 
+  /** TODO: 1 instance of packet adapter for 1x or 4x instance of XXV Ethernet IP */
+  output    [ 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_awvalid,
+  output [32* 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_awaddr,
+  input     [ 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_awready,
+  output    [ 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_wvalid,
+  output [32* 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_wdata,
+  input     [ 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_wready,
+  input     [ 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_bvalid,
+  input   [2* 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_bresp,
+  output    [ 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_bready,
+  output    [ 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_arvalid,
+  output [32* 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_araddr,
+  input     [ 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_arready,
+  input     [ 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_rvalid,
+  input  [32* 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_rdata,
+  input   [2* 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_rresp,
+  output    [ 1 /** NUM_CMAC_PORT */-1 :0] m_axil_adap_rready,
 
+`endif /** DISABLED_CODE_CMAC */
+
+`ifdef DISABLED_CODE_CMAC
   output    [NUM_CMAC_PORT-1:0] m_axil_cmac_awvalid,
   output [32*NUM_CMAC_PORT-1:0] m_axil_cmac_awaddr,
   input     [NUM_CMAC_PORT-1:0] m_axil_cmac_awready,
@@ -88,8 +114,8 @@ module system_config #(
   input  [32*NUM_CMAC_PORT-1:0] m_axil_cmac_rdata,
   input   [2*NUM_CMAC_PORT-1:0] m_axil_cmac_rresp,
   output    [NUM_CMAC_PORT-1:0] m_axil_cmac_rready,
-
-  //XXV axi lite system config
+`else
+  /** XXV axi lite system config */
   output    [NUM_XXV_PORT-1:0] m_axil_xxv_awvalid,
   output [32*NUM_XXV_PORT-1:0] m_axil_xxv_awaddr,
   input     [NUM_XXV_PORT-1:0] m_axil_xxv_awready,
@@ -106,6 +132,7 @@ module system_config #(
   input  [32*NUM_XXV_PORT-1:0] m_axil_xxv_rdata,
   input   [2*NUM_XXV_PORT-1:0] m_axil_xxv_rresp,
   output    [NUM_XXV_PORT-1:0] m_axil_xxv_rready,
+`endif /** DISABLED_CODE_CMAC */
 
   output                        m_axil_box0_awvalid,
   output                 [31:0] m_axil_box0_awaddr,
@@ -196,7 +223,11 @@ module system_config #(
     if (NUM_QDMA > 2 || NUM_QDMA < 1) begin
       $fatal("[%m] Number of QDMAs should be within the range [1, 2]");
     end
+`ifdef DISABLED_CODE_CMAC    
     if (NUM_CMAC_PORT > 2 || NUM_CMAC_PORT < 1) begin
+`else    
+    if (NUM_CMAC_PORT > 2 || NUM_CMAC_PORT < 1) begin
+`endif /* DISABLED_CODE_CMAC **/
       $fatal("[%m] Number of CMACs should be within the range [1, 2]");
     end
   end
@@ -317,8 +348,13 @@ module system_config #(
    
   system_config_address_map #(
     .NUM_QDMA   (NUM_QDMA),
+
+`ifdef DISABLED_CODE_CMAC  
     .NUM_CMAC_PORT (NUM_CMAC_PORT)
+`else    
     .NUM_XXV_PORT (NUM_XXV_PORT)
+`endif /** DISABLED_CODE_CMAC */
+
   ) scfg_address_map_inst (
     .s_axil_awvalid      (s_axil_awvalid),
     .s_axil_awaddr       (s_axil_awaddr),
@@ -388,7 +424,7 @@ module system_config #(
     .m_axil_adap_rresp   (m_axil_adap_rresp),
     .m_axil_adap_rready  (m_axil_adap_rready),
 
-    //TODO: need to disable CMAC?
+`ifdef DISABLED_CODE_CMAC
     .m_axil_cmac_awvalid (m_axil_cmac_awvalid),
     .m_axil_cmac_awaddr  (m_axil_cmac_awaddr),
     .m_axil_cmac_awready (m_axil_cmac_awready),
@@ -405,7 +441,7 @@ module system_config #(
     .m_axil_cmac_rdata   (m_axil_cmac_rdata),
     .m_axil_cmac_rresp   (m_axil_cmac_rresp),
     .m_axil_cmac_rready  (m_axil_cmac_rready),
-
+`else
     //system config address map XXV
     .m_axil_xxv_awvalid (m_axil_xxv_awvalid),
     .m_axil_xxv_awaddr  (m_axil_xxv_awaddr),
@@ -423,6 +459,7 @@ module system_config #(
     .m_axil_xxv_rdata   (m_axil_xxv_rdata),
     .m_axil_xxv_rresp   (m_axil_xxv_rresp),
     .m_axil_xxv_rready  (m_axil_xxv_rready),
+`endif DISABLED_CODE_CMAC    
     
     .m_axil_smon_awvalid (axil_smon_awvalid),
     .m_axil_smon_awaddr  (axil_smon_awaddr),

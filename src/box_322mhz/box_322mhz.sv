@@ -18,9 +18,9 @@
 `timescale 1ns/1ps
 //TODO: need to change to packet 161Mhz :xxv_clk
 module box_322mhz #(
-  parameter int MIN_PKT_LEN   = 64, //bits ?
+  parameter int MIN_PKT_LEN   = 64, 
   parameter int MAX_PKT_LEN   = 1518,
-  parameter int NUM_CMAC_PORT = 1,
+  //parameter int NUM_CMAC_PORT = 1,
   parameter int NUM_XXV_PORT  = 1
 ) (
   input                          s_axil_awvalid,
@@ -59,12 +59,19 @@ module box_322mhz #(
   output     [NUM_XXV_PORT-1:0] m_axis_adap_rx_322mhz_tlast,
   output     [NUM_XXV_PORT-1:0] m_axis_adap_rx_322mhz_tuser_err,
 
-  output     [NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tvalid,
-  output [512*NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tdata,
-  output  [64*NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tkeep,
-  output     [NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tlast,
-  output     [NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tuser_err,
-  input      [NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tready,
+  //output     [NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tvalid,
+  //output [512*NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tdata,
+  //output  [64*NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tkeep,
+  //output     [NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tlast,
+  //output     [NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tuser_err,
+  //input      [NUM_CMAC_PORT-1:0] m_axis_cmac_tx_tready,
+
+  output     [NUM_XXV_PORT-1:0] m_axis_xxv_tx_tvalid,
+  output [512*NUM_XXV_PORT-1:0] m_axis_xxv_tx_tdata,
+  output  [64*NUM_XXV_PORT-1:0] m_axis_xxv_tx_tkeep,
+  output     [NUM_XXV_PORT-1:0] m_axis_xxv_tx_tlast,
+  output     [NUM_XXV_PORT-1:0] m_axis_xxv_tx_tuser_err,
+  input      [NUM_XXV_PORT-1:0] m_axis_xxv_tx_tready,
 
   //input      [NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tvalid,
   //input  [512*NUM_CMAC_PORT-1:0] s_axis_cmac_rx_tdata,

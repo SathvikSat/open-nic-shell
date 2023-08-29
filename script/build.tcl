@@ -87,7 +87,8 @@ set src_dir ${root_dir}/src
 #   num_qdma      Number of QDMA interfaces (1 to 2)
 #   num_queue        Number of QDMA queues (1 to 2048)
 #   num_cmac_port    Number of CMAC ports (1 or 2)
-#   num_xxv_port     Number of XXV  ports (1, 2, 3 oder 4)
+ #TODO: Number of XXV ports
+#   num_xxv_port     Number of XXV  ports (1, 2, 3 oder 4 or upto 8?)
 # Simulation parameters
 #   sim_exec_path  Path to directory containing simulator executable
 #   sim_lib_path   Path where simulation libraries should be compiled

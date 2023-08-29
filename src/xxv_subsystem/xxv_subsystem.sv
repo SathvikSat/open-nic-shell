@@ -57,20 +57,19 @@ module xxv_subsystem #(
   input   [63:0] s_axis_xxv_box322_fifo_tkeep,
   input          s_axis_xxv_box322_fifo_tlast,
   input          s_axis_xxv_box322_fifo_tuser_err,
-  input  [15:0]  s_axis_xxv_box322_fifo_tuser_dst;
+  input  [15:0]  s_axis_xxv_box322_fifo_tuser_size,
+  input  [15:0]  s_axis_xxv_box322_fifo_tuser_dst,
+  input  [15:0]  s_axis_xxv_box322_fifo_tuser_src,
   output         s_axis_xxv_box322_fifo_tready,
 
 
   /** actual output of the xxv_subsystem, actual output is fed to box322Mhz read from register slice instance 02 in XXV sub-system */
-  //TODO: note switch with 4 instances is not handled
+  /** TODO: note switch with 4 instances is not handled */
   output         m_axis_xxv_fifo_box322_tvalid, 
   output [511:0] m_axis_xxv_fifo_box322_tdata,
   output [63:0]  m_axis_xxv_fifo_box322_tkeep,
   output         m_axis_xxv_fifo_box322_tlast,
   output         m_axis_xxv_fifo_box322_tuser_err,
-
-  //output []
-  
 
   `ifdef __synthesis__
   /** for 4 instances of XXV vector size will change later */
@@ -166,13 +165,14 @@ assign dropping = (~pkt_started && axis_xxv_box322_fifo_tvalid && axis_xxv_box32
 
 
 /** Perhaps not needed */
+//TODO: address clock and reset
  always @(posedge axis_aclk) begin
     if (~axil_aresetn) begin
       pkt_started   <= 1'b0;
       dropping_more <= 1'b0;
     end
-    else if (~pkt_started && axis_tx_tvalid && axis_tx_tready) begin
-      if (axis_tx_tlast) begin
+    else if (~pkt_started && axis_xxv_box322_fifo_tvalid && axis_xxv_box322_fifo_tready) begin
+      if (axis_xxv_box322_fifo_tlast) begin
         pkt_started   <= 1'b0;
         dropping_more <= 1'b0;
       end
@@ -181,13 +181,21 @@ assign dropping = (~pkt_started && axis_xxv_box322_fifo_tvalid && axis_xxv_box32
         dropping_more <= bad_dst;
       end
     end
-    else if (axis_tx_tvalid && axis_tx_tlast && axis_tx_tready) begin
+    else if (axis_xxv_box322_fifo_tvalid && axis_xxv_box322_fifo_tlast && axis_xxv_box322_fifo_tready) begin
       pkt_started   <= 1'b0;
       dropping_more <= 1'b0;
     end
   end
 
+  assign tx_pkt_sent = axis_xxv_box322_fifo_tvalid && axis_xxv_box322_fifo_tlast && axis_xxv_box322_fifo_tready && ~dropping;
+  assign tx_pkt_drop = axis_xxv_box322_fifo_tvalid && axis_xxv_box322_fifo_tlast && axis_xxv_box322_fifo_tready && dropping;
+  assign tx_bytes    = axis_tx_tuser_size;
 
+  //TODO: add this signal properly
+  assign m_axis_tx_tuser_err = 1'b0;
+
+
+//TODO: move this module instantiation into right location
 /** For XXV Tx side buffering/FIFO after down conversion of transfers */
 axi_stream_packet_fifo #(
     .CDC_SYNC_STAGES  (2),
@@ -210,15 +218,18 @@ axi_stream_packet_fifo #(
     .s_axis_tdest       (0),
     .s_axis_tready      (axis_xxv_box322_fifo_tready),
 
-    .m_axis_tvalid      (),
-    .m_axis_tdata       (),
-    .m_axis_tkeep       (),
+    /** Capture the output of FIFO in Tx */
+    .m_axis_tvalid      (axis_xxv_tx_fifo_width_down_tvalid),
+    .m_axis_tdata       (axis_xxv_tx_fifo_width_down_tdata),
+    .m_axis_tkeep       (axis_xxv_tx_fifo_width_down_tkeep),
     .m_axis_tstrb       (),
-    .m_axis_tlast       (),
+    .m_axis_tlast       (axis_xxv_tx_fifo_width_down_tlast),
+    //axis_xxv_tx_fifo_width_down_tuser_err
     .m_axis_tuser       (),
-    .m_axis_tid         (),
-    .m_axis_tdest       (),
-    .m_axis_tready      (),
+    //.m_axis_tid         (),
+    //.m_axis_tdest       (),
+    //TODO: ready needed?
+    .m_axis_tready      (axis_xxv_tx_fifo_width_down_tready),
 
     .almost_empty_axis  (),
     .prog_empty_axis    (),
@@ -227,14 +238,15 @@ axi_stream_packet_fifo #(
     .wr_data_count_axis (),
     .rd_data_count_axis (),
 
-    .injectsbiterr_axis (),
-    .injectdbiterr_axis (),
+    .injectsbiterr_axis (1'b0),
+    .injectdbiterr_axis (1'b0),
     .sbiterr_axis       (),
     .dbiterr_axis       (),
 
+    //TODO: address clk and rst
     .s_aclk             (),
     .m_aclk             (),
-    .s_aresetn          ()
+    .s_aresetn          (axil_aresetn)
 
   );
 
@@ -276,13 +288,15 @@ axi_stream_packet_fifo #(
   wire         axil_qsfp_rready;
 
   //Output of register slice in Tx btw Box322 and FIFO captured here
-  wire axis_xxv_box322_fifo_tvalid,
-  wire axis_xxv_box322_fifo_tdata,
-  wire axis_xxv_box322_fifo_tkeep,
-  wire axis_xxv_box322_fifo_tlast,
-  wire axis_xxv_box322_fifo_tuser_dst,
-  wire axis_xxv_box322_fifo_tuser_err,
-  wire axis_xxv_box322_fifo_tready
+  wire          axis_xxv_box322_fifo_tvalid,
+  wire [511:0]  axis_xxv_box322_fifo_tdata,
+  wire [63:0]   axis_xxv_box322_fifo_tkeep,
+  wire          axis_xxv_box322_fifo_tlast,
+  wire [15:0]   axis_xxv_box322_fifo_tuser_size,
+  wire [15:0]   axis_xxv_box322_fifo_tuser_dst,
+  wire [15:0]   axis_xxv_box322_fifo_tuser_src,
+  wire          axis_xxv_box322_fifo_tuser_err,
+  wire          axis_xxv_box322_fifo_tready
   
 
 //Input to the .... TODO
@@ -301,7 +315,13 @@ axi_stream_packet_fifo #(
   wire         axis_xxv_rx_tlast;
   wire         axis_xxv_rx_tuser_err;
 
- 
+  //register slice btw XXV IP and data_wdith downsizer
+  wire         axis_xxv_tx_fifo_width_down_tvalid,
+  wire [63:0]  axis_xxv_tx_fifo_width_down_tdata,
+  wire  [7:0]  axis_xxv_tx_fifo_width_down_tkeep,
+  wire         axis_xxv_tx_fifo_width_down_tlast,
+  wire         axis_xxv_tx_fifo_width_down_tuser_err,
+  wire         axis_xxv_tx_fifo_width_down_tready 
 
   //register slice btw XXV IP and data_wdith upsizer
   wire         m_axis_xxv_rx_tvalid,
@@ -432,13 +452,7 @@ xxv_subsystem_address_map address_map_inst(
     .aclk           (axil_aclk)
   );
 
-//1st instance of axi_stream_register_slice btw 322 and FIFO //tx
-  input          ,
-  input  [511:0] ,
-  input   [63:0] ,
-  input          ,
-  input          ,
-  output         ,
+//1st instance of axi_stream_register_slice btw 322 and FIFO //tx  
 axi_stream_register_slice #(
   .TDATA_W (512),
   //TODO: cross check all signal widths everywhere
@@ -451,10 +465,12 @@ axi_stream_register_slice #(
   .s_axis_tkeep  (s_axis_xxv_box322_fifo_tkeep),
   .s_axis_tlast  (s_axis_xxv_box322_fifo_tlast),
   //.s_axis_tid    (0),
-  .s_axis_tdest  (s_axis_xxv_box322_fifo_tuser_dst),
+  //.s_axis_tdest  (0),
   //TODO: verify tuser
-  .s_axis_tuser  (s_axis_xxv_box322_fifo_tuser_err),
-  .s_axis_tready (s_axis_xxv_box322_fifo_tready)
+  //s_axis_xxv_box322_fifo_tuser_err
+  //TODO: add tuser_src, dst size etc in callee and caller modules
+  .s_axis_tuser  ({s_axis_xxv_box322_fifo_tuser_size,s_axis_xxv_box322_fifo_tuser_src, s_axis_xxv_box322_fifo_tuser_dst}),
+  .s_axis_tready (s_axis_xxv_box322_fifo_tready),
 
 
   //TODO: use this as input to axi width converter instance
@@ -466,7 +482,8 @@ axi_stream_register_slice #(
   //Unused as of now
   //.m_axis_tid    (),
   //.m_axis_tdest  (),
-  .m_axis_tuser  (axis_xxv_box322_fifo_tuser_err),
+  //axis_xxv_box322_fifo_tuser_err
+  .m_axis_tuser  ({axis_xxv_box322_fifo_tuser_size, axis_xxv_box322_fifo_tuser_src, axis_xxv_box322_fifo_tuser_dst}),
   .m_axis_tready (axis_xxv_box322_fifo_tready),
   //TODO: check the freq here xxv_clk will be 161.xx?
   .aclk          (),
@@ -539,7 +556,6 @@ axi_stream_register_slice #(
 );
 
 
-
 axis_dwidth_converter_0 #(
   //TODO: need to specify parameters?
 ) axis_dwidth_up_converter_inst (
@@ -571,14 +587,13 @@ axis_dwidth_converter_0 #(
   //TODO: need to specify parameters?
 ) axis_dwidth_down_converter_inst (
   //Reference for signals taken from block design dummy configuration
-  
-  .s_axis_tvalid(m_axis_xxv_rx_tvalid),
+  .s_axis_tvalid(axis_xxv_tx_fifo_width_down_tvalid),
   //xxv sends continously, doesnt wait for slaves tready
   //.s_axis_tready(),  
-  .s_axis_tdata(m_axis_xxv_rx_tdata),
-  .s_axis_tkeep(m_axis_xxv_rx_tkeep),
-  .s_axis_tlast(m_axis_xxv_rx_tlast),
-  .s_axis_tuser(m_axis_xxv_rx_tuser_err),  
+  .s_axis_tdata(axis_xxv_tx_fifo_width_down_tdata),
+  .s_axis_tkeep(axis_xxv_tx_fifo_width_down_tkeep),
+  .s_axis_tlast(axis_xxv_tx_fifo_width_down_tlast),
+  .s_axis_tuser(axis_xxv_tx_fifo_width_down_tuser_err),  
   
   .aclk(),
   .aresetn(),
@@ -606,8 +621,6 @@ axi_stream_packet_fifo #(
   .TDATA_WIDTH      (512)
 
 );
-
-
 
 
 //Remove this as axi_stream_packet_buffer module is used instead in Rx
@@ -652,9 +665,6 @@ axi_stream_register_slice #(
 ) tx_slice_inst(
 
 //use the output of fifo as input
-
-
-
 
 //s_axis_xxv_width_down_tuser_err
 .s_axis_tvalid (s_axis_xxv_width_down_tvalid ),

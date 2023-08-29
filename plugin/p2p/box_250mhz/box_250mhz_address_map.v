@@ -19,6 +19,7 @@
 //
 // System-level address range: 0x40000 - 0xFFFFF
 //
+//  /** TODO: Address MAP for 4x instance of XXV needs to be handled wrt PCIe BAR2 ? */
 // --------------------------------------------------
 //   BaseAddr |  HighAddr |  Module
 // --------------------------------------------------
