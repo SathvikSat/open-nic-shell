@@ -64,25 +64,25 @@ module xxv_subsystem_address_map(
   input   [1:0] m_axil_xxv_rresp,
   output        m_axil_xxv_rready,
 
-`ifdef DISABLED_CODE_CMAC
- 
-  output        m_axil_qsfp_awvalid,
-  output [31:0] m_axil_qsfp_awaddr,
-  input         m_axil_qsfp_awready,
-  output        m_axil_qsfp_wvalid,
-  output [31:0] m_axil_qsfp_wdata,
-  input         m_axil_qsfp_wready,
-  input         m_axil_qsfp_bvalid,
-  input   [1:0] m_axil_qsfp_bresp,
-  output        m_axil_qsfp_bready,
-  output        m_axil_qsfp_arvalid,
-  output [31:0] m_axil_qsfp_araddr,
-  input         m_axil_qsfp_arready,
-  input         m_axil_qsfp_rvalid,
-  input  [31:0] m_axil_qsfp_rdata,
-  input   [1:0] m_axil_qsfp_rresp,
-  output        m_axil_qsfp_rready,
-`endif /** __DISABLED_CODE_CMAC__ */
+//`ifdef DISABLED_CODE_CMAC
+// 
+//  output        m_axil_qsfp_awvalid,
+//  output [31:0] m_axil_qsfp_awaddr,
+//  input         m_axil_qsfp_awready,
+//  output        m_axil_qsfp_wvalid,
+//  output [31:0] m_axil_qsfp_wdata,
+//  input         m_axil_qsfp_wready,
+//  input         m_axil_qsfp_bvalid,
+//  input   [1:0] m_axil_qsfp_bresp,
+//  output        m_axil_qsfp_bready,
+//  output        m_axil_qsfp_arvalid,
+//  output [31:0] m_axil_qsfp_araddr,
+//  input         m_axil_qsfp_arready,
+//  input         m_axil_qsfp_rvalid,
+//  input  [31:0] m_axil_qsfp_rdata,
+//  input   [1:0] m_axil_qsfp_rresp,
+//  output        m_axil_qsfp_rready,
+//`endif /** __DISABLED_CODE_CMAC__ */
 
   input         aclk,
   input         aresetn

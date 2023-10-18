@@ -147,7 +147,6 @@ module qdma_subsystem #(
 `ifdef __au55n__
   output                         ref_clk_100mhz,
 `elsif __au55c__
-//TODO: can this ref clk be used a input for XXV_subsystem?
   output                         ref_clk_100mhz,
 `elsif __au50__
   output                         ref_clk_100mhz,

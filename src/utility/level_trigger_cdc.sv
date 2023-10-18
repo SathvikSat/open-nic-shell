@@ -22,7 +22,7 @@
 // increment signal from a different clock domain.
 // 
 
-//TODO: this depth needs to be handled properly in XXV especially for Tx direction
+
 
 // The implementation uses an asynchronous FIFO.  The depth should be large
 // enough so that no event in the source domain will be missed.  When

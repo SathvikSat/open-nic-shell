@@ -76,12 +76,13 @@ module packet_adapter #(
   input          axil_aclk,
   input          axis_aclk,
   //input          cmac_clk
-  //TODO: not xxv_clk, master_clk of newFIFO used for buffering
-  input          xxv_clk
+  //TODO: not xxv_clk, remove unused clk or rst inout
+  input          xxv_clk, //161 Mhz, not really needed for packet adapter 
+  input          xxv_fifo322_clk //322Mhz 
 );
 
   wire        axil_aresetn;
-  //TODO: XXV reset or newFIFO output reset?
+  wire        xxv_fifo322_rstn;
   wire        xxv_rstn;
   //wire        cmac_rstn;
 
@@ -96,15 +97,16 @@ module packet_adapter #(
 
   // Reset is clocked by the 125MHz AXI-Lite clock
   generic_reset #(
-    .NUM_INPUT_CLK  (2),
-    //TODO: what is this reset duration
+    .NUM_INPUT_CLK  (3),
+    //.NUM_INPUT_CLK  (2),
     .RESET_DURATION (100)
   ) reset_inst (
     .mod_rstn     (mod_rstn),
     .mod_rst_done (mod_rst_done),
-    .clk          ({xxv_clk, axil_aclk}),
+    // { other input clk2, other input clk1 ,slowestClk_axiLite }
+    .clk          ({xxv_fifo322_clk, xxv_clk, axil_aclk}),
     //.clk          ({cmac_clk, axil_aclk}),
-    .rstn         ({xxv_rstn, axil_aresetn})
+    .rstn         ({ xxv_fifo322_rstn, xxv_rstn, axil_aresetn})
     //.rstn         ({cmac_rstn, axil_aresetn})
   );
 
@@ -140,7 +142,7 @@ module packet_adapter #(
     .axil_aresetn   (axil_aresetn)
   );
 
-  //TODO: need to change cmac_clk changes, fifo depth enough etc at Tx side of packet 
+  
   //adapter for XXV
   packet_adapter_tx #(
     .XXV_ID     (XXV_ID),
@@ -170,7 +172,7 @@ module packet_adapter #(
 
     .axis_aclk            (axis_aclk),
     .axil_aresetn         (axil_aresetn),
-    .xxv_clk             (xxv_clk)
+    .xxv_clk_322             (xxv_fifo322_clk)
     //.cmac_clk             (cmac_clk)
   );
 
@@ -202,10 +204,10 @@ module packet_adapter #(
 
     .axis_aclk            (axis_aclk),
     //.cmac_clk             (cmac_clk),
-    //.cmac_rstn            (cmac_rstn)
-    .xxv_clk             (xxv_clk),
-    .xxv_rstn            (xxv_rstn)
-
+    //.cmac_rstn            (cmac_rstn),
+    .xxv_clk_322             (xxv_fifo322_clk),
+    //.xxv_rstn            (xxv_rstn),
+    .xxv_rstn_322                 (xxv_fifo322_rstn)
   );
 
 endmodule: packet_adapter

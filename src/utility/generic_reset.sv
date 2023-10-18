@@ -146,6 +146,7 @@ module generic_reset #(
   generate for (genvar i = 1; i < NUM_INPUT_CLK; i++) begin
     // Synchronize reset from slowest clock to other clocks
     xpm_cdc_async_rst #(
+      //TODO: verify this value .DEST_SYNC_FF    (2) 
       .DEST_SYNC_FF    (2),
       .RST_ACTIVE_HIGH (0)
     ) reset_sync_inst (

@@ -35,6 +35,7 @@ proc _do_impl {jobs {strategies ""}} {
     }
 }
 
+#TODO: ask: mem on board where bit file is loaded? set start_address 0x01002000
 proc _do_post_impl {build_dir top impl_run {zynq_family 0} board} {
     if {$zynq_family} {
         current_run $impl_run
@@ -46,7 +47,7 @@ proc _do_post_impl {build_dir top impl_run {zynq_family 0} board} {
             set mem_size 256
             set start_address 0x00000000
         } else {
-            set mem_size 128
+            set mem_size 128    
             set start_address 0x01002000
         }
         set interface SPIx4
@@ -111,6 +112,8 @@ array set build_options {
 }
 set build_options(-user_plugin) ${plugin_dir}/p2p
 
+#TODO: disable cmac exe from tcl
+#-num_cmac_port    1
 array set design_params {
     -build_timestamp  0
     -min_pkt_len      64
@@ -119,8 +122,7 @@ array set design_params {
     -num_phys_func    1
     -num_qdma         1
     -num_queue        512
-    -num_cmac_port    1
-    #TODO: cross verify
+    
     -num_xxv_port     1
 }
 set design_params(-build_timestamp) [clock format [clock seconds] -format %m%d%H%M]
@@ -187,11 +189,11 @@ if {$use_phys_func == 1} {
         exit
     }
 }
-#TODO: need to disable this when XXV is used?
-if {$num_cmac_port != 1 && $num_cmac_port != 2} {
-    puts "Invalid value for -num_cmac_port: allowed values are 1 and 2"
-    exit
-}
+
+#if {$num_cmac_port != 1 && $num_cmac_port != 2} {
+#    puts "Invalid value for -num_cmac_port: allowed values are 1 and 2"
+#    exit
+#}
 if {$num_xxv_port != 1 } {
     puts "Invalid value for -num_cmac_port: allowed values are only: 1, for now"
     exit
@@ -245,7 +247,7 @@ if {[string equal $board_repo ""]} {
 }
 
 # Enumerate modules
-
+#TODO: cross check while building; enumerate for xxv modules
 #*****************enumerate modules in source path
 
 
@@ -324,7 +326,8 @@ dict for {module module_dir} $module_dict {
         # - Otherwise, skip this IP as it may be specific for certain board target
         if {[file exists "${ip_tcl_dir}/${ip}_${board}.tcl"]} {
             source ${ip_tcl_dir}/${ip}_${board}.tcl
-        } elseif {[file exists "${ip_tcl_dir}/${ip}.tcl"]} {
+        }
+        elseif {[file exists "${ip_tcl_dir}/${ip}.tcl"]} {
             source ${ip_tcl_dir}/${ip}.tcl
         } else {
             continue
@@ -354,7 +357,6 @@ if {[file exists $top_build_dir] && !$overwrite} {
 }
 
 
-#******say  if changes made/overwritten in user plugin??***************
 if {[file exists $top_build_dir]} {
     puts "INFO: \[$top\] Found existing build, deleting... (overwrite=1)"
     file delete -force $top_build_dir
@@ -471,18 +473,19 @@ if {$sim} {
     launch_simulation -scripts_only
 }
 
-
+#Implement design
 set start_time [clock clicks -microseconds]
 time {
-# Implement design
+
 if {$impl} {
     update_compile_order -fileset sources_1
-    _do_impl $jobs {"Vivado Implementation Defaults"}
+    _do_impl $jobs {"Performance_ExplorePostRoutePhysOpt"}
 }
 }
+# _do_impl $jobs {"Vivado Implementation Defaults"}
+
 set end_time [clock clicks -microseconds]
-set elapsed_time [expr {$end_time - $start_time
-}]
+set elapsed_time [expr {$end_time - $start_time}]
 puts "Time _do_impl: $elapsed_time_do_imp us"
 
 if {$post_impl} {
@@ -490,12 +493,10 @@ if {$post_impl} {
 }
 
 
-
+# your FPGA build script here
 set start_time [clock clicks -microseconds]
 time {
-  # your FPGA build script here
-	
-	
+  
   for {set i 1} {$i <= 100} {incr i} {
     puts $i
   }

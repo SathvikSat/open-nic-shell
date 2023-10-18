@@ -20,6 +20,6 @@
 
 `define getbit(width, index, offset)    ((index)*(width) + (offset))
 `define getvec(width, index)            ((index)*(width)) +: (width)
-//TODO: handle this during compilation?
-`define DISABLED_CODE_CMAC 0
+//TODO: handle this during compilation via verilog/tcl or macro
+//`define DISABLED_CODE_CMAC 0
 `endif

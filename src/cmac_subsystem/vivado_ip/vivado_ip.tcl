@@ -15,10 +15,10 @@
 # limitations under the License.
 #
 # *************************************************************************
-set ips {
-    cmac_usplus_0
-    cmac_subsystem_axi_crossbar
-}
-if {$num_cmac_port == 2} {
-    lappend ips "cmac_usplus_1"
-}
+#set ips {
+#    cmac_usplus_0
+#    cmac_subsystem_axi_crossbar
+#}
+#if {$num_cmac_port == 2} {
+#    lappend ips "cmac_usplus_1"
+#}

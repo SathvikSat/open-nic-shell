@@ -36,7 +36,6 @@
 // -----------------------------------------------------------------------------
 //   0x018  |  RO  | User status register
 // -----------------------------------------------------------------------------
-/** TODO: check system level address for packet adapter with XXV */
 `timescale 1ns/1ps
 module system_config_register #(
   parameter [31:0] BUILD_TIMESTAMP = 32'h01010000
@@ -172,7 +171,7 @@ module system_config_register #(
   end
 
   // Submodule resets are triggered either by writing to the reset registers, or
-  // through power-up reset.  These reset signals are active-low and valid for a
+  // through power-up reset.  These rhttps://www.youtube.com/watch?v=kd5KqlmcHNoeset signals are active-low and valid for a
   // single cycle.
   generate for (genvar ii = 0; ii < 32; ii = ii + 1) begin
     assign shell_rstn[ii] = ~(system_rst || (~shell_rst_last[ii] && reg_shell_rst[ii]));
@@ -203,8 +202,8 @@ module system_config_register #(
   // Shell reset register (write-only)
   //
   // 31:3  - reserved
-  // 2     - reset for the CMAC subsystem CMAC1
-  // 1     - reset for the CMAC subsystem CMAC0
+  // 2     - reset for the CMAC subsystem CMAC1 
+  // 1     - reset for the CMAC subsystem CMAC0 or XXV0 (Entire XXV subsystem is reset, ie., all newly added AXI modules are part of it)
   // 0     - reset for the QDMA subsystem
   // 
   // Writing 1 to a bit of this register initiates a submodule-level reset in

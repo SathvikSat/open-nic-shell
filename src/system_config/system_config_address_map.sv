@@ -72,11 +72,11 @@
 `timescale 1ns/1ps
 module system_config_address_map #(
   parameter int NUM_QDMA = 1,
-`ifdef DISABLED_CODE_CMAC
-  parameter int NUM_CMAC_PORT = 1,
-`else  
+//`ifdef DISABLED_CODE_CMAC
+//  parameter int NUM_CMAC_PORT = 1,
+//`else  
   parameter int NUM_XXV_PORT  = 1
-`endif /** DISABLED_CODE_CMAC */
+//`endif /** DISABLED_CODE_CMAC */
 ) (
   input          [NUM_QDMA-1:0] s_axil_awvalid,
   input       [32*NUM_QDMA-1:0] s_axil_awaddr,
@@ -129,22 +129,23 @@ module system_config_address_map #(
   input     [2*NUM_QDMA-1:0] m_axil_qdma_rresp,
   output      [NUM_QDMA-1:0] m_axil_qdma_rready,
 
-  output    [NUM_CMAC_PORT-1:0] m_axil_adap_awvalid,
-  output [32*NUM_CMAC_PORT-1:0] m_axil_adap_awaddr,
-  input     [NUM_CMAC_PORT-1:0] m_axil_adap_awready,
-  output    [NUM_CMAC_PORT-1:0] m_axil_adap_wvalid,
-  output [32*NUM_CMAC_PORT-1:0] m_axil_adap_wdata,
-  input     [NUM_CMAC_PORT-1:0] m_axil_adap_wready,
-  input     [NUM_CMAC_PORT-1:0] m_axil_adap_bvalid,
-  input   [2*NUM_CMAC_PORT-1:0] m_axil_adap_bresp,
-  output    [NUM_CMAC_PORT-1:0] m_axil_adap_bready,
-  output    [NUM_CMAC_PORT-1:0] m_axil_adap_arvalid,
-  output [32*NUM_CMAC_PORT-1:0] m_axil_adap_araddr,
-  input     [NUM_CMAC_PORT-1:0] m_axil_adap_arready,
-  input     [NUM_CMAC_PORT-1:0] m_axil_adap_rvalid,
-  input  [32*NUM_CMAC_PORT-1:0] m_axil_adap_rdata,
-  input   [2*NUM_CMAC_PORT-1:0] m_axil_adap_rresp,
-  output    [NUM_CMAC_PORT-1:0] m_axil_adap_rready,
+  //CMAC
+  //output    [NUM_CMAC_PORT-1:0] m_axil_adap_awvalid,
+  //output [32*NUM_CMAC_PORT-1:0] m_axil_adap_awaddr,
+  //input     [NUM_CMAC_PORT-1:0] m_axil_adap_awready,
+  //output    [NUM_CMAC_PORT-1:0] m_axil_adap_wvalid,
+  //output [32*NUM_CMAC_PORT-1:0] m_axil_adap_wdata,
+  //input     [NUM_CMAC_PORT-1:0] m_axil_adap_wready,
+  //input     [NUM_CMAC_PORT-1:0] m_axil_adap_bvalid,
+  //input   [2*NUM_CMAC_PORT-1:0] m_axil_adap_bresp,
+  //output    [NUM_CMAC_PORT-1:0] m_axil_adap_bready,
+  //output    [NUM_CMAC_PORT-1:0] m_axil_adap_arvalid,
+  //output [32*NUM_CMAC_PORT-1:0] m_axil_adap_araddr,
+  //input     [NUM_CMAC_PORT-1:0] m_axil_adap_arready,
+  //input     [NUM_CMAC_PORT-1:0] m_axil_adap_rvalid,
+  //input  [32*NUM_CMAC_PORT-1:0] m_axil_adap_rdata,
+  //input   [2*NUM_CMAC_PORT-1:0] m_axil_adap_rresp,
+  //output    [NUM_CMAC_PORT-1:0] m_axil_adap_rready,
 
   //XXV port
   output    [NUM_XXV_PORT-1:0] m_axil_adap_awvalid,
@@ -163,24 +164,24 @@ module system_config_address_map #(
   input  [32*NUM_XXV_PORT-1:0] m_axil_adap_rdata,
   input   [2*NUM_XXV_PORT-1:0] m_axil_adap_rresp,
   output    [NUM_XXV_PORT-1:0] m_axil_adap_rready,
-`ifdef DISABLED_CODE_CMAC
-  output    [NUM_CMAC_PORT-1:0] m_axil_cmac_awvalid,
-  output [32*NUM_CMAC_PORT-1:0] m_axil_cmac_awaddr,
-  input     [NUM_CMAC_PORT-1:0] m_axil_cmac_awready,
-  output    [NUM_CMAC_PORT-1:0] m_axil_cmac_wvalid,
-  output [32*NUM_CMAC_PORT-1:0] m_axil_cmac_wdata,
-  input     [NUM_CMAC_PORT-1:0] m_axil_cmac_wready,
-  input     [NUM_CMAC_PORT-1:0] m_axil_cmac_bvalid,
-  input   [2*NUM_CMAC_PORT-1:0] m_axil_cmac_bresp,
-  output    [NUM_CMAC_PORT-1:0] m_axil_cmac_bready,
-  output    [NUM_CMAC_PORT-1:0] m_axil_cmac_arvalid,
-  output [32*NUM_CMAC_PORT-1:0] m_axil_cmac_araddr,
-  input     [NUM_CMAC_PORT-1:0] m_axil_cmac_arready,
-  input     [NUM_CMAC_PORT-1:0] m_axil_cmac_rvalid,
-  input  [32*NUM_CMAC_PORT-1:0] m_axil_cmac_rdata,
-  input   [2*NUM_CMAC_PORT-1:0] m_axil_cmac_rresp,
-  output    [NUM_CMAC_PORT-1:0] m_axil_cmac_rready,
-`else
+//`ifdef DISABLED_CODE_CMAC
+//  output    [NUM_CMAC_PORT-1:0] m_axil_cmac_awvalid,
+//  output [32*NUM_CMAC_PORT-1:0] m_axil_cmac_awaddr,
+//  input     [NUM_CMAC_PORT-1:0] m_axil_cmac_awready,
+//  output    [NUM_CMAC_PORT-1:0] m_axil_cmac_wvalid,
+//  output [32*NUM_CMAC_PORT-1:0] m_axil_cmac_wdata,
+//  input     [NUM_CMAC_PORT-1:0] m_axil_cmac_wready,
+//  input     [NUM_CMAC_PORT-1:0] m_axil_cmac_bvalid,
+//  input   [2*NUM_CMAC_PORT-1:0] m_axil_cmac_bresp,
+//  output    [NUM_CMAC_PORT-1:0] m_axil_cmac_bready,
+//  output    [NUM_CMAC_PORT-1:0] m_axil_cmac_arvalid,
+//  output [32*NUM_CMAC_PORT-1:0] m_axil_cmac_araddr,
+//  input     [NUM_CMAC_PORT-1:0] m_axil_cmac_arready,
+//  input     [NUM_CMAC_PORT-1:0] m_axil_cmac_rvalid,
+//  input  [32*NUM_CMAC_PORT-1:0] m_axil_cmac_rdata,
+//  input   [2*NUM_CMAC_PORT-1:0] m_axil_cmac_rresp,
+//  output    [NUM_CMAC_PORT-1:0] m_axil_cmac_rready,
+//`else
   
  //XXV system config address map output configs
   output    [NUM_XXV_PORT-1:0] m_axil_xxv_awvalid,
@@ -199,7 +200,7 @@ module system_config_address_map #(
   input  [32*NUM_XXV_PORT-1:0] m_axil_xxv_rdata,
   input   [2*NUM_XXV_PORT-1:0] m_axil_xxv_rresp,
   output    [NUM_XXV_PORT-1:0] m_axil_xxv_rready,
-`endif /* DISABLED_CODE_CMAC **/
+//`endif /* DISABLED_CODE_CMAC **/
 
   output                        m_axil_box0_awvalid,
   output                 [31:0] m_axil_box0_awaddr,
@@ -300,19 +301,21 @@ module system_config_address_map #(
   localparam C_NUM_SLAVES  = 12;
   localparam C_SCFG_INDEX  = 0;
   localparam C_QDMA0_INDEX = 1;
-  /** TODO: cross check this if CMAC and XXV plans to run simultaneously */
-`ifdef DISABLED_CODE_CMAC  
-  localparam C_CMAC0_INDEX = 2;
-`else
+//`ifdef DISABLED_CODE_CMAC  
+//  localparam C_CMAC0_INDEX = 2;
+//`else
   localparam C_XXV0_INDEX = 2;
-`endif /** DISABLED_CODE_CMAC */
+//`endif /** DISABLED_CODE_CMAC */
 
   localparam C_ADAP0_INDEX = 3;
 
-`ifdef DISABLED_CODE_CMAC 
-  localparam C_CMAC1_INDEX = 4;
-  localparam C_ADAP1_INDEX = 5;
-`endif /* DISABLED_CODE_CMAC **/
+//`ifdef DISABLED_CODE_CMAC 
+//  localparam C_CMAC1_INDEX = 4;
+//  localparam C_ADAP1_INDEX = 5;
+//`endif /* DISABLED_CODE_CMAC **/
+  
+  //TODO: change it after testing if doesnt work
+  //localparam C_XXV1_INDEX = 4;
 
   localparam C_SMON_INDEX  = 6;
   localparam C_QDMA1_INDEX = 7;
@@ -324,16 +327,19 @@ module system_config_address_map #(
   localparam C_SCFG_BASE_ADDR  = 32'h0;
   localparam C_QDMA0_BASE_ADDR = 32'h01000;
   localparam C_QDMA1_BASE_ADDR = 32'h12000;
-`ifdef DISABLED_CODE_CMAC  
-  localparam C_CMAC0_BASE_ADDR = 32'h08000;
-`else  
+//`ifdef DISABLED_CODE_CMAC  
+//  localparam C_CMAC0_BASE_ADDR = 32'h08000;
+//`else  
   localparam C_XXV0_BASE_ADDR = 32'h08000;
-`endif /** DISABLED_CODE_CMAC */  
+//`endif /** DISABLED_CODE_CMAC */  
   localparam C_ADAP0_BASE_ADDR = 32'h0B000;
-`ifdef DISABLED_CODE_CMAC
-  localparam C_CMAC1_BASE_ADDR = 32'h0C000;
-  localparam C_ADAP1_BASE_ADDR = 32'h0F000;
-`endif /** DISABLED_CODE_CMAC */  
+//`ifdef DISABLED_CODE_CMAC
+//  localparam C_CMAC1_BASE_ADDR = 32'h0C000;
+//  localparam C_ADAP1_BASE_ADDR = 32'h0F000;
+//`endif /** DISABLED_CODE_CMAC */  
+
+  //localparam C_XXV1_BASE_ADDR = 32'h0C000;
+
   localparam C_SMON_BASE_ADDR  = 32'h10000;  // 14 bits
   localparam C_BOX1_BASE_ADDR  = 32'h200000; // 20 bits
   localparam C_BOX0_BASE_ADDR  = 32'h100000; // 20 bits
@@ -346,23 +352,23 @@ module system_config_address_map #(
   wire                [31:0] axil_qdma0_araddr;
   wire                [31:0] axil_qdma1_awaddr;
   wire                [31:0] axil_qdma1_araddr;
-`ifdef DISABLED_CODE_CMAC  
-  wire                [31:0] axil_cmac0_awaddr;
-  wire                [31:0] axil_cmac0_araddr;
-`else  
+//`ifdef DISABLED_CODE_CMAC  
+//  wire                [31:0] axil_cmac0_awaddr;
+//  wire                [31:0] axil_cmac0_araddr;
+//`else  
   //XXV
   wire                [31:0] axil_xxv0_awaddr;
   wire                [31:0] axil_xxv0_araddr;
-`endif /** DISABLED_CODE_CMAC */  
+//`endif /** DISABLED_CODE_CMAC */  
   wire                [31:0] axil_adap0_awaddr;
   wire                [31:0] axil_adap0_araddr;
 
-`ifdef DISABLED_CODE_CMAC
-  wire                [31:0] axil_cmac1_awaddr;
-  wire                [31:0] axil_cmac1_araddr;
-  wire                [31:0] axil_adap1_awaddr;
-  wire                [31:0] axil_adap1_araddr;
-`endif /** DISABLED_CODE_CMAC */  
+//`ifdef DISABLED_CODE_CMAC
+//  wire                [31:0] axil_cmac1_awaddr;
+//  wire                [31:0] axil_cmac1_araddr;
+//  wire                [31:0] axil_adap1_awaddr;
+//  wire                [31:0] axil_adap1_araddr;
+//`endif /** DISABLED_CODE_CMAC */  
   wire                [31:0] axil_box1_awaddr;
   wire                [31:0] axil_box1_araddr;
   wire                [31:0] axil_box0_awaddr;
@@ -418,23 +424,27 @@ module system_config_address_map #(
   assign axil_qdma0_araddr                     = axil_araddr[`getvec(32, C_QDMA0_INDEX)] - C_QDMA0_BASE_ADDR;
   assign axil_qdma1_awaddr                     = axil_awaddr[`getvec(32, C_QDMA1_INDEX)] - C_QDMA1_BASE_ADDR;
   assign axil_qdma1_araddr                     = axil_araddr[`getvec(32, C_QDMA1_INDEX)] - C_QDMA1_BASE_ADDR;
-`ifdef DISABLED_CODE_CMAC
-  assign axil_cmac0_awaddr                     = axil_awaddr[`getvec(32, C_CMAC0_INDEX)] - C_CMAC0_BASE_ADDR;
-  assign axil_cmac0_araddr                     = axil_araddr[`getvec(32, C_CMAC0_INDEX)] - C_CMAC0_BASE_ADDR;
-`else  
+//`ifdef DISABLED_CODE_CMAC
+//  assign axil_cmac0_awaddr                     = axil_awaddr[`getvec(32, C_CMAC0_INDEX)] - C_CMAC0_BASE_ADDR;
+//  assign axil_cmac0_araddr                     = axil_araddr[`getvec(32, C_CMAC0_INDEX)] - C_CMAC0_BASE_ADDR;
+//`else  
   //xxv0
   assign axil_xxv0_awaddr                     =  axil_awaddr[`getvec(32, C_XXV0_INDEX)] - C_XXV0_BASE_ADDR;
   assign axil_xxv0_araddr                     =  axil_araddr[`getvec(32, C_XXV0_INDEX)] - C_XXV0_BASE_ADDR;
-`endif /** DISABLED_CODE_CMAC */  
+//`endif /** DISABLED_CODE_CMAC */  
   assign axil_adap0_awaddr                     = axil_awaddr[`getvec(32, C_ADAP0_INDEX)] - C_ADAP0_BASE_ADDR;
   assign axil_adap0_araddr                     = axil_araddr[`getvec(32, C_ADAP0_INDEX)] - C_ADAP0_BASE_ADDR;
 
-`ifdef DISABLED_CODE_CMAC  
-  assign axil_cmac1_awaddr                     = axil_awaddr[`getvec(32, C_CMAC1_INDEX)] - C_CMAC1_BASE_ADDR;
-  assign axil_cmac1_araddr                     = axil_araddr[`getvec(32, C_CMAC1_INDEX)] - C_CMAC1_BASE_ADDR;
-  assign axil_adap1_awaddr                     = axil_awaddr[`getvec(32, C_ADAP1_INDEX)] - C_ADAP1_BASE_ADDR;
-  assign axil_adap1_araddr                     = axil_araddr[`getvec(32, C_ADAP1_INDEX)] - C_ADAP1_BASE_ADDR;
-`endif /** DISABLED_CODE_CMAC */   
+//`ifdef DISABLED_CODE_CMAC  
+//  assign axil_cmac1_awaddr                     = axil_awaddr[`getvec(32, C_CMAC1_INDEX)] - C_CMAC1_BASE_ADDR;
+//  assign axil_cmac1_araddr                     = axil_araddr[`getvec(32, C_CMAC1_INDEX)] - C_CMAC1_BASE_ADDR;
+//  assign axil_adap1_awaddr                     = axil_awaddr[`getvec(32, C_ADAP1_INDEX)] - C_ADAP1_BASE_ADDR;
+//  assign axil_adap1_araddr                     = axil_araddr[`getvec(32, C_ADAP1_INDEX)] - C_ADAP1_BASE_ADDR;
+//`endif /** DISABLED_CODE_CMAC */   
+ 
+ //TODO: post testing for all xxv1
+ //assign axil_xxv1_awaddr                     = axil_awaddr[`getvec(32, C_XXV1_INDEX)] - C_XXV1_BASE_ADDR;
+ //assign axil_xxv1_araddr                     = axil_araddr[`getvec(32, C_XXV1_INDEX)] - C_XXV1_BASE_ADDR;
 
   assign axil_smon_awaddr                      = axil_awaddr[`getvec(32, C_SMON_INDEX)]  - C_SMON_BASE_ADDR;
   assign axil_smon_araddr                      = axil_araddr[`getvec(32, C_SMON_INDEX)] - C_SMON_BASE_ADDR;
@@ -576,32 +586,32 @@ module system_config_address_map #(
   end
 
 /** TODO: `ifdef not working */
-`ifdef DISABLED_CODE_CMAC
-  if (NUM_CMAC_PORT == 1) begin
-  
-  //TODO: CMAC cond disabled here
-`else  
-  if (NUM_XXV_PORT == 1) begin
-`endif /** DISABLED_CODE_CMAC */
+//`ifdef DISABLED_CODE_CMAC
+//  if (NUM_CMAC_PORT == 1) begin
+//  
+//  //TODO: CMAC cond disabled here
+//`else  
+  //if (NUM_XXV_PORT == 1) begin //TODO: for now its 1
+//`endif /** DISABLED_CODE_CMAC */
 
-`ifdef DISABLED_CODE_CMAC
-    assign m_axil_cmac_awvalid                    = axil_awvalid[C_CMAC0_INDEX];
-    assign m_axil_cmac_awaddr                     = axil_cmac0_awaddr;
-    assign axil_awready[C_CMAC0_INDEX]            = m_axil_cmac_awready;
-    assign m_axil_cmac_wvalid                     = axil_wvalid[C_CMAC0_INDEX];
-    assign m_axil_cmac_wdata                      = axil_wdata[`getvec(32, C_CMAC0_INDEX)];
-    assign axil_wready[C_CMAC0_INDEX]             = m_axil_cmac_wready;
-    assign axil_bvalid[C_CMAC0_INDEX]             = m_axil_cmac_bvalid;
-    assign axil_bresp[`getvec(2, C_CMAC0_INDEX)]  = m_axil_cmac_bresp;
-    assign m_axil_cmac_bready                     = axil_bready[C_CMAC0_INDEX];
-    assign m_axil_cmac_arvalid                    = axil_arvalid[C_CMAC0_INDEX];
-    assign m_axil_cmac_araddr                     = axil_cmac0_araddr;
-    assign axil_arready[C_CMAC0_INDEX]            = m_axil_cmac_arready;
-    assign axil_rvalid[C_CMAC0_INDEX]             = m_axil_cmac_rvalid;
-    assign axil_rdata[`getvec(32, C_CMAC0_INDEX)] = m_axil_cmac_rdata;
-    assign axil_rresp[`getvec(2, C_CMAC0_INDEX)]  = m_axil_cmac_rresp;
-    assign m_axil_cmac_rready                     = axil_rready[C_CMAC0_INDEX];
-`else
+//`ifdef DISABLED_CODE_CMAC
+//    assign m_axil_cmac_awvalid                    = axil_awvalid[C_CMAC0_INDEX];
+//    assign m_axil_cmac_awaddr                     = axil_cmac0_awaddr;
+//    assign axil_awready[C_CMAC0_INDEX]            = m_axil_cmac_awready;
+//    assign m_axil_cmac_wvalid                     = axil_wvalid[C_CMAC0_INDEX];
+//    assign m_axil_cmac_wdata                      = axil_wdata[`getvec(32, C_CMAC0_INDEX)];
+//    assign axil_wready[C_CMAC0_INDEX]             = m_axil_cmac_wready;
+//    assign axil_bvalid[C_CMAC0_INDEX]             = m_axil_cmac_bvalid;
+//    assign axil_bresp[`getvec(2, C_CMAC0_INDEX)]  = m_axil_cmac_bresp;
+//    assign m_axil_cmac_bready                     = axil_bready[C_CMAC0_INDEX];
+//    assign m_axil_cmac_arvalid                    = axil_arvalid[C_CMAC0_INDEX];
+//    assign m_axil_cmac_araddr                     = axil_cmac0_araddr;
+//    assign axil_arready[C_CMAC0_INDEX]            = m_axil_cmac_arready;
+//    assign axil_rvalid[C_CMAC0_INDEX]             = m_axil_cmac_rvalid;
+//    assign axil_rdata[`getvec(32, C_CMAC0_INDEX)] = m_axil_cmac_rdata;
+//    assign axil_rresp[`getvec(2, C_CMAC0_INDEX)]  = m_axil_cmac_rresp;
+//    assign m_axil_cmac_rready                     = axil_rready[C_CMAC0_INDEX];
+//`else
     assign m_axil_xxv_awvalid                    = axil_awvalid[C_XXV0_INDEX];
     assign m_axil_xxv_awaddr                     = axil_xxv0_awaddr;
     assign axil_awready[C_XXV0_INDEX]            = m_axil_xxv_awready;
@@ -618,7 +628,7 @@ module system_config_address_map #(
     assign axil_rdata[`getvec(32, C_XXV0_INDEX)] = m_axil_xxv_rdata;
     assign axil_rresp[`getvec(2, C_XXV0_INDEX)]  = m_axil_xxv_rresp;
     assign m_axil_xxv_rready                     = axil_rready[C_XXV0_INDEX];
-endif /** DISABLED_CODE_CMAC */
+//endif /** DISABLED_CODE_CMAC */
 
     assign m_axil_adap_awvalid                    = axil_awvalid[C_ADAP0_INDEX];
     assign m_axil_adap_awaddr                     = axil_adap0_awaddr;
@@ -637,183 +647,183 @@ endif /** DISABLED_CODE_CMAC */
     assign axil_rresp[`getvec(2, C_ADAP0_INDEX)]  = m_axil_adap_rresp;
     assign m_axil_adap_rready                     = axil_rready[C_ADAP0_INDEX];
 
-`ifdef DISABLED_CODE_CMAC
-    // Sink for unused CMAC1 register path
-    axi_lite_slave #(
-      .REG_ADDR_W (13),
-      .REG_PREFIX (16'hC100)
-    ) cmac1_reg_inst (
-      .s_axil_awvalid (axil_awvalid[C_CMAC1_INDEX]),
-      .s_axil_awaddr  (axil_cmac1_awaddr),
-      .s_axil_awready (axil_awready[C_CMAC1_INDEX]),
-      .s_axil_wvalid  (axil_wvalid[C_CMAC1_INDEX]),
-      .s_axil_wdata   (axil_wdata[`getvec(32, C_CMAC1_INDEX)]),
-      .s_axil_wready  (axil_wready[C_CMAC1_INDEX]),
-      .s_axil_bvalid  (axil_bvalid[C_CMAC1_INDEX]),
-      .s_axil_bresp   (axil_bresp[`getvec(2, C_CMAC1_INDEX)]),
-      .s_axil_bready  (axil_bready[C_CMAC1_INDEX]),
-      .s_axil_arvalid (axil_arvalid[C_CMAC1_INDEX]),
-      .s_axil_araddr  (axil_cmac1_araddr),
-      .s_axil_arready (axil_arready[C_CMAC1_INDEX]),
-      .s_axil_rvalid  (axil_rvalid[C_CMAC1_INDEX]),
-      .s_axil_rdata   (axil_rdata[`getvec(32, C_CMAC1_INDEX)]),
-      .s_axil_rresp   (axil_rresp[`getvec(2, C_CMAC1_INDEX)]),
-      .s_axil_rready  (axil_rready[C_CMAC1_INDEX]),
-
-      .aresetn        (aresetn),
-      .aclk           (aclk[0])
-    );
-
-`else
-/** TODO: note below sink for CMAC0/XXV0 ? */
-     axi_lite_slave #(
-      .REG_ADDR_W (13),
-      .REG_PREFIX (16'hC100)
-    ) xxv1_reg_inst (
-      .s_axil_awvalid (axil_awvalid[C_XXV1_INDEX]),
-      .s_axil_awaddr  (axil_XXV1_awaddr),
-      .s_axil_awready (axil_awready[C_XXV1_INDEX]),
-      .s_axil_wvalid  (axil_wvalid[C_XXV1_INDEX]),
-      .s_axil_wdata   (axil_wdata[`getvec(32, C_XXV1_INDEX)]),
-      .s_axil_wready  (axil_wready[C_XXV1_INDEX]),
-      .s_axil_bvalid  (axil_bvalid[C_XXV1_INDEX]),
-      .s_axil_bresp   (axil_bresp[`getvec(2, C_XXV1_INDEX)]),
-      .s_axil_bready  (axil_bready[C_XXV1_INDEX]),
-      .s_axil_arvalid (axil_arvalid[C_XXV1_INDEX]),
-      .s_axil_araddr  (axil_XXV1_araddr),
-      .s_axil_arready (axil_arready[C_XXV1_INDEX]),
-      .s_axil_rvalid  (axil_rvalid[C_XXV1_INDEX]),
-      .s_axil_rdata   (axil_rdata[`getvec(32, C_XXV1_INDEX)]),
-      .s_axil_rresp   (axil_rresp[`getvec(2, C_XXV1_INDEX)]),
-      .s_axil_rready  (axil_rready[C_XXV1_INDEX]),
-
-      .aresetn        (aresetn),
-      .aclk           (aclk[0])
-    );
-`endif /** DISABLED_CODE_CMAC */
+//`ifdef DISABLED_CODE_CMAC
+//    // Sink for unused CMAC1 register path
+//    axi_lite_slave #(
+//      .REG_ADDR_W (13),
+//      .REG_PREFIX (16'hC100)
+//    ) cmac1_reg_inst (
+//      .s_axil_awvalid (axil_awvalid[C_CMAC1_INDEX]),
+//      .s_axil_awaddr  (axil_cmac1_awaddr),
+//      .s_axil_awready (axil_awready[C_CMAC1_INDEX]),
+//      .s_axil_wvalid  (axil_wvalid[C_CMAC1_INDEX]),
+//      .s_axil_wdata   (axil_wdata[`getvec(32, C_CMAC1_INDEX)]),
+//      .s_axil_wready  (axil_wready[C_CMAC1_INDEX]),
+//      .s_axil_bvalid  (axil_bvalid[C_CMAC1_INDEX]),
+//      .s_axil_bresp   (axil_bresp[`getvec(2, C_CMAC1_INDEX)]),
+//      .s_axil_bready  (axil_bready[C_CMAC1_INDEX]),
+//      .s_axil_arvalid (axil_arvalid[C_CMAC1_INDEX]),
+//      .s_axil_araddr  (axil_cmac1_araddr),
+//      .s_axil_arready (axil_arready[C_CMAC1_INDEX]),
+//      .s_axil_rvalid  (axil_rvalid[C_CMAC1_INDEX]),
+//      .s_axil_rdata   (axil_rdata[`getvec(32, C_CMAC1_INDEX)]),
+//      .s_axil_rresp   (axil_rresp[`getvec(2, C_CMAC1_INDEX)]),
+//      .s_axil_rready  (axil_rready[C_CMAC1_INDEX]),
+//
+//      .aresetn        (aresetn),
+//      .aclk           (aclk[0])
+//    );
+//
+//`else
+/** TODO: note below sink for CMAC1/XXV1 ?  yes address this*/
+    // axi_lite_slave #(
+    //  .REG_ADDR_W (13),
+    //  .REG_PREFIX (16'hC100)
+    //) xxv1_reg_inst (
+    //  .s_axil_awvalid (axil_awvalid[C_XXV1_INDEX]),
+    //  .s_axil_awaddr  (axil_XXV1_awaddr),
+    //  .s_axil_awready (axil_awready[C_XXV1_INDEX]),
+    //  .s_axil_wvalid  (axil_wvalid[C_XXV1_INDEX]),
+    //  .s_axil_wdata   (axil_wdata[`getvec(32, C_XXV1_INDEX)]),
+    //  .s_axil_wready  (axil_wready[C_XXV1_INDEX]),
+    //  .s_axil_bvalid  (axil_bvalid[C_XXV1_INDEX]),
+    //  .s_axil_bresp   (axil_bresp[`getvec(2, C_XXV1_INDEX)]),
+    //  .s_axil_bready  (axil_bready[C_XXV1_INDEX]),
+    //  .s_axil_arvalid (axil_arvalid[C_XXV1_INDEX]),
+    //  .s_axil_araddr  (axil_XXV1_araddr),
+    //  .s_axil_arready (axil_arready[C_XXV1_INDEX]),
+    //  .s_axil_rvalid  (axil_rvalid[C_XXV1_INDEX]),
+    //  .s_axil_rdata   (axil_rdata[`getvec(32, C_XXV1_INDEX)]),
+    //  .s_axil_rresp   (axil_rresp[`getvec(2, C_XXV1_INDEX)]),
+    //  .s_axil_rready  (axil_rready[C_XXV1_INDEX]),
+//
+    //  .aresetn        (aresetn),
+    //  .aclk           (aclk[0])
+    //);
+//`endif /** DISABLED_CODE_CMAC */
 
 /** TODO: Note: Single adap will be used with multiple XXVs unlike multiple CMACs */
-    // Sink for unused ADAP1 register path
-`ifdef DISABLED_CODE_CMAC    
-    axi_lite_slave #(
-      .REG_ADDR_W (13),
-      .REG_PREFIX (16'hC100)
-    ) adap1_reg_inst (
-      .s_axil_awvalid (axil_awvalid[C_ADAP1_INDEX]),
-      .s_axil_awaddr  (axil_adap1_awaddr),
-      .s_axil_awready (axil_awready[C_ADAP1_INDEX]),
-      .s_axil_wvalid  (axil_wvalid[C_ADAP1_INDEX]),
-      .s_axil_wdata   (axil_wdata[`getvec(32, C_ADAP1_INDEX)]),
-      .s_axil_wready  (axil_wready[C_ADAP1_INDEX]),
-      .s_axil_bvalid  (axil_bvalid[C_ADAP1_INDEX]),
-      .s_axil_bresp   (axil_bresp[`getvec(2, C_ADAP1_INDEX)]),
-      .s_axil_bready  (axil_bready[C_ADAP1_INDEX]),
-      .s_axil_arvalid (axil_arvalid[C_ADAP1_INDEX]),
-      .s_axil_araddr  (axil_adap1_araddr),
-      .s_axil_arready (axil_arready[C_ADAP1_INDEX]),
-      .s_axil_rvalid  (axil_rvalid[C_ADAP1_INDEX]),
-      .s_axil_rdata   (axil_rdata[`getvec(32, C_ADAP1_INDEX)]),
-      .s_axil_rresp   (axil_rresp[`getvec(2, C_ADAP1_INDEX)]),
-      .s_axil_rready  (axil_rready[C_ADAP1_INDEX]),
-
-      .aresetn        (aresetn),
-      .aclk           (aclk[0])
-    );
-`endif /**DISABLED_CODE_CMAC*/
-  end
-  else begin
-`ifdef DISABLED_CODE_CMAC //TODO: make sure this is inside else {}
-    assign m_axil_cmac_awvalid[0]                 = axil_awvalid[C_CMAC0_INDEX];
-    assign m_axil_cmac_awaddr[`getvec(32, 0)]     = axil_cmac0_awaddr;
-    assign axil_awready[C_CMAC0_INDEX]            = m_axil_cmac_awready[0];
-    assign m_axil_cmac_wvalid[0]                  = axil_wvalid[C_CMAC0_INDEX];
-    assign m_axil_cmac_wdata[`getvec(32, 0)]      = axil_wdata[`getvec(32, C_CMAC0_INDEX)];
-    assign axil_wready[C_CMAC0_INDEX]             = m_axil_cmac_wready[0];
-    assign axil_bvalid[C_CMAC0_INDEX]             = m_axil_cmac_bvalid[0];
-    assign axil_bresp[`getvec(2, C_CMAC0_INDEX)]  = m_axil_cmac_bresp[`getvec(2, 0)];
-    assign m_axil_cmac_bready[0]                  = axil_bready[C_CMAC0_INDEX];
-    assign m_axil_cmac_arvalid[0]                 = axil_arvalid[C_CMAC0_INDEX];
-    assign m_axil_cmac_araddr[`getvec(32, 0)]     = axil_cmac0_araddr;
-    assign axil_arready[C_CMAC0_INDEX]            = m_axil_cmac_arready[0];
-    assign axil_rvalid[C_CMAC0_INDEX]             = m_axil_cmac_rvalid[0];
-    assign axil_rdata[`getvec(32, C_CMAC0_INDEX)] = m_axil_cmac_rdata[`getvec(32, 0)];
-    assign axil_rresp[`getvec(2, C_CMAC0_INDEX)]  = m_axil_cmac_rresp[`getvec(2, 0)];
-    assign m_axil_cmac_rready[0]                  = axil_rready[C_CMAC0_INDEX];
-
-`else
+    // Sink for unused ADAP1 register path, yes fix this
+//`ifdef DISABLED_CODE_CMAC    
+//    axi_lite_slave #(
+//      .REG_ADDR_W (13),
+//      .REG_PREFIX (16'hC100)
+//    ) adap1_reg_inst (
+//      .s_axil_awvalid (axil_awvalid[C_ADAP1_INDEX]),
+//      .s_axil_awaddr  (axil_adap1_awaddr),
+//      .s_axil_awready (axil_awready[C_ADAP1_INDEX]),
+//      .s_axil_wvalid  (axil_wvalid[C_ADAP1_INDEX]),
+//      .s_axil_wdata   (axil_wdata[`getvec(32, C_ADAP1_INDEX)]),
+//      .s_axil_wready  (axil_wready[C_ADAP1_INDEX]),
+//      .s_axil_bvalid  (axil_bvalid[C_ADAP1_INDEX]),
+//      .s_axil_bresp   (axil_bresp[`getvec(2, C_ADAP1_INDEX)]),
+//      .s_axil_bready  (axil_bready[C_ADAP1_INDEX]),
+//      .s_axil_arvalid (axil_arvalid[C_ADAP1_INDEX]),
+//      .s_axil_araddr  (axil_adap1_araddr),
+//      .s_axil_arready (axil_arready[C_ADAP1_INDEX]),
+//      .s_axil_rvalid  (axil_rvalid[C_ADAP1_INDEX]),
+//      .s_axil_rdata   (axil_rdata[`getvec(32, C_ADAP1_INDEX)]),
+//      .s_axil_rresp   (axil_rresp[`getvec(2, C_ADAP1_INDEX)]),
+//      .s_axil_rready  (axil_rready[C_ADAP1_INDEX]),
+//
+//      .aresetn        (aresetn),
+//      .aclk           (aclk[0])
+//    );
+//`endif /**DISABLED_CODE_CMAC*/
+  //end
+  //else begin
+//`ifdef DISABLED_CODE_CMAC //TODO: make sure this is inside else {}
+//    assign m_axil_cmac_awvalid[0]                 = axil_awvalid[C_CMAC0_INDEX];
+//    assign m_axil_cmac_awaddr[`getvec(32, 0)]     = axil_cmac0_awaddr;
+//    assign axil_awready[C_CMAC0_INDEX]            = m_axil_cmac_awready[0];
+//    assign m_axil_cmac_wvalid[0]                  = axil_wvalid[C_CMAC0_INDEX];
+//    assign m_axil_cmac_wdata[`getvec(32, 0)]      = axil_wdata[`getvec(32, C_CMAC0_INDEX)];
+//    assign axil_wready[C_CMAC0_INDEX]             = m_axil_cmac_wready[0];
+//    assign axil_bvalid[C_CMAC0_INDEX]             = m_axil_cmac_bvalid[0];
+//    assign axil_bresp[`getvec(2, C_CMAC0_INDEX)]  = m_axil_cmac_bresp[`getvec(2, 0)];
+//    assign m_axil_cmac_bready[0]                  = axil_bready[C_CMAC0_INDEX];
+//    assign m_axil_cmac_arvalid[0]                 = axil_arvalid[C_CMAC0_INDEX];
+//    assign m_axil_cmac_araddr[`getvec(32, 0)]     = axil_cmac0_araddr;
+//    assign axil_arready[C_CMAC0_INDEX]            = m_axil_cmac_arready[0];
+//    assign axil_rvalid[C_CMAC0_INDEX]             = m_axil_cmac_rvalid[0];
+//    assign axil_rdata[`getvec(32, C_CMAC0_INDEX)] = m_axil_cmac_rdata[`getvec(32, 0)];
+//    assign axil_rresp[`getvec(2, C_CMAC0_INDEX)]  = m_axil_cmac_rresp[`getvec(2, 0)];
+//    assign m_axil_cmac_rready[0]                  = axil_rready[C_CMAC0_INDEX];
+//
+//`else
     //XXV 0 instance
-    assign m_axil_xxv_awvalid[0]                 = axil_awvalid[C_XXV0_INDEX];
-    assign m_axil_xxv_awaddr[`getvec(32, 0)]     = axil_xxv0_awaddr;
-    assign axil_awready[C_XXV0_INDEX]            = m_axil_xxv_awready[0];
-    assign m_axil_xxv_wvalid[0]                  = axil_wvalid[C_XXV0_INDEX];
-    assign m_axil_xxv_wdata[`getvec(32, 0)]      = axil_wdata[`getvec(32, C_XXV0_INDEX)];
-    assign axil_wready[C_XXV0_INDEX]             = m_axil_xxv_wready[0];
-    assign axil_bvalid[C_XXV0_INDEX]             = m_axil_xxv_bvalid[0];
-    assign axil_bresp[`getvec(2, C_XXV0_INDEX)]  = m_axil_xxv_bresp[`getvec(2, 0)];
-    assign m_axil_xxv_bready[0]                  = axil_bready[C_XXV0_INDEX];
-    assign m_axil_xxv_arvalid[0]                 = axil_arvalid[C_XXV0_INDEX];
-    assign m_axil_xxv_araddr[`getvec(32, 0)]     = axil_xxv0_araddr;
-    assign axil_arready[C_XXV0_INDEX]            = m_axil_xxv_arready[0];
-    assign axil_rvalid[C_XXV0_INDEX]             = m_axil_xxv_rvalid[0];
-    assign axil_rdata[`getvec(32, C_XXV0_INDEX)] = m_axil_xxv_rdata[`getvec(32, 0)];
-    assign axil_rresp[`getvec(2, C_XXV0_INDEX)]  = m_axil_xxv_rresp[`getvec(2, 0)];
-    assign m_axil_xxv_rready[0]                  = axil_rready[C_XXV0_INDEX];
-`endif /** DISABLED_CODE_CMAC */
+    //assign m_axil_xxv_awvalid[0]                 = axil_awvalid[C_XXV0_INDEX];
+    //assign m_axil_xxv_awaddr[`getvec(32, 0)]     = axil_xxv0_awaddr;
+    //assign axil_awready[C_XXV0_INDEX]            = m_axil_xxv_awready[0];
+    //assign m_axil_xxv_wvalid[0]                  = axil_wvalid[C_XXV0_INDEX];
+    //assign m_axil_xxv_wdata[`getvec(32, 0)]      = axil_wdata[`getvec(32, C_XXV0_INDEX)];
+    //assign axil_wready[C_XXV0_INDEX]             = m_axil_xxv_wready[0];
+    //assign axil_bvalid[C_XXV0_INDEX]             = m_axil_xxv_bvalid[0];
+    //assign axil_bresp[`getvec(2, C_XXV0_INDEX)]  = m_axil_xxv_bresp[`getvec(2, 0)];
+    //assign m_axil_xxv_bready[0]                  = axil_bready[C_XXV0_INDEX];
+    //assign m_axil_xxv_arvalid[0]                 = axil_arvalid[C_XXV0_INDEX];
+    //assign m_axil_xxv_araddr[`getvec(32, 0)]     = axil_xxv0_araddr;
+    //assign axil_arready[C_XXV0_INDEX]            = m_axil_xxv_arready[0];
+    //assign axil_rvalid[C_XXV0_INDEX]             = m_axil_xxv_rvalid[0];
+    //assign axil_rdata[`getvec(32, C_XXV0_INDEX)] = m_axil_xxv_rdata[`getvec(32, 0)];
+    //assign axil_rresp[`getvec(2, C_XXV0_INDEX)]  = m_axil_xxv_rresp[`getvec(2, 0)];
+    //assign m_axil_xxv_rready[0]                  = axil_rready[C_XXV0_INDEX];
+//`endif /** DISABLED_CODE_CMAC */
 
-    assign m_axil_adap_awvalid[0]                 = axil_awvalid[C_ADAP0_INDEX];
-    assign m_axil_adap_awaddr[`getvec(32, 0)]     = axil_adap0_awaddr;
-    assign axil_awready[C_ADAP0_INDEX]            = m_axil_adap_awready[0];
-    assign m_axil_adap_wvalid[0]                  = axil_wvalid[C_ADAP0_INDEX];
-    assign m_axil_adap_wdata[`getvec(32, 0)]      = axil_wdata[`getvec(32, C_ADAP0_INDEX)];
-    assign axil_wready[C_ADAP0_INDEX]             = m_axil_adap_wready[0];
-    assign axil_bvalid[C_ADAP0_INDEX]             = m_axil_adap_bvalid[0];
-    assign axil_bresp[`getvec(2, C_ADAP0_INDEX)]  = m_axil_adap_bresp[`getvec(2, 0)];
-    assign m_axil_adap_bready[0]                  = axil_bready[C_ADAP0_INDEX];
-    assign m_axil_adap_arvalid[0]                 = axil_arvalid[C_ADAP0_INDEX];
-    assign m_axil_adap_araddr[`getvec(32, 0)]     = axil_adap0_araddr;
-    assign axil_arready[C_ADAP0_INDEX]            = m_axil_adap_arready[0];
-    assign axil_rvalid[C_ADAP0_INDEX]             = m_axil_adap_rvalid[0];
-    assign axil_rdata[`getvec(32, C_ADAP0_INDEX)] = m_axil_adap_rdata[`getvec(32, 0)];
-    assign axil_rresp[`getvec(2, C_ADAP0_INDEX)]  = m_axil_adap_rresp[`getvec(2, 0)];
-    assign m_axil_adap_rready[0]                  = axil_rready[C_ADAP0_INDEX];
+    //assign m_axil_adap_awvalid[0]                 = axil_awvalid[C_ADAP0_INDEX];
+    //assign m_axil_adap_awaddr[`getvec(32, 0)]     = axil_adap0_awaddr;
+    //assign axil_awready[C_ADAP0_INDEX]            = m_axil_adap_awready[0];
+    //assign m_axil_adap_wvalid[0]                  = axil_wvalid[C_ADAP0_INDEX];
+    //assign m_axil_adap_wdata[`getvec(32, 0)]      = axil_wdata[`getvec(32, C_ADAP0_INDEX)];
+    //assign axil_wready[C_ADAP0_INDEX]             = m_axil_adap_wready[0];
+    //assign axil_bvalid[C_ADAP0_INDEX]             = m_axil_adap_bvalid[0];
+    //assign axil_bresp[`getvec(2, C_ADAP0_INDEX)]  = m_axil_adap_bresp[`getvec(2, 0)];
+    //assign m_axil_adap_bready[0]                  = axil_bready[C_ADAP0_INDEX];
+    //assign m_axil_adap_arvalid[0]                 = axil_arvalid[C_ADAP0_INDEX];
+    //assign m_axil_adap_araddr[`getvec(32, 0)]     = axil_adap0_araddr;
+    //assign axil_arready[C_ADAP0_INDEX]            = m_axil_adap_arready[0];
+    //assign axil_rvalid[C_ADAP0_INDEX]             = m_axil_adap_rvalid[0];
+    //assign axil_rdata[`getvec(32, C_ADAP0_INDEX)] = m_axil_adap_rdata[`getvec(32, 0)];
+    //assign axil_rresp[`getvec(2, C_ADAP0_INDEX)]  = m_axil_adap_rresp[`getvec(2, 0)];
+    //assign m_axil_adap_rready[0]                  = axil_rready[C_ADAP0_INDEX];
 
-`ifdef DISABLED_CODE_CMAC //ADAP1 and CMAC1 disabled when XXV0
-    //Note: Disabling CMAC1 when using XXV0 
-    assign m_axil_cmac_awvalid[1]                 = axil_awvalid[C_CMAC1_INDEX];
-    assign m_axil_cmac_awaddr[`getvec(32, 1)]     = axil_cmac1_awaddr;
-    assign axil_awready[C_CMAC1_INDEX]            = m_axil_cmac_awready[1];
-    assign m_axil_cmac_wvalid[1]                  = axil_wvalid[C_CMAC1_INDEX];
-    assign m_axil_cmac_wdata[`getvec(32, 1)]      = axil_wdata[`getvec(32, C_CMAC1_INDEX)];
-    assign axil_wready[C_CMAC1_INDEX]             = m_axil_cmac_wready[1];
-    assign axil_bvalid[C_CMAC1_INDEX]             = m_axil_cmac_bvalid[1];
-    assign axil_bresp[`getvec(2, C_CMAC1_INDEX)]  = m_axil_cmac_bresp[`getvec(2, 1)];
-    assign m_axil_cmac_bready[1]                  = axil_bready[C_CMAC1_INDEX];
-    assign m_axil_cmac_arvalid[1]                 = axil_arvalid[C_CMAC1_INDEX];
-    assign m_axil_cmac_araddr[`getvec(32, 1)]     = axil_cmac1_araddr;
-    assign axil_arready[C_CMAC1_INDEX]            = m_axil_cmac_arready[1];
-    assign axil_rvalid[C_CMAC1_INDEX]             = m_axil_cmac_rvalid[1];
-    assign axil_rdata[`getvec(32, C_CMAC1_INDEX)] = m_axil_cmac_rdata[`getvec(32, 1)];
-    assign axil_rresp[`getvec(2, C_CMAC1_INDEX)]  = m_axil_cmac_rresp[`getvec(2, 1)];
-    assign m_axil_cmac_rready[1]                  = axil_rready[C_CMAC1_INDEX];
-
-    assign m_axil_adap_awvalid[1]                 = axil_awvalid[C_ADAP1_INDEX];
-    assign m_axil_adap_awaddr[`getvec(32, 1)]     = axil_adap1_awaddr;
-    assign axil_awready[C_ADAP1_INDEX]            = m_axil_adap_awready[1];
-    assign m_axil_adap_wvalid[1]                  = axil_wvalid[C_ADAP1_INDEX];
-    assign m_axil_adap_wdata[`getvec(32, 1)]      = axil_wdata[`getvec(32, C_ADAP1_INDEX)];
-    assign axil_wready[C_ADAP1_INDEX]             = m_axil_adap_wready[1];
-    assign axil_bvalid[C_ADAP1_INDEX]             = m_axil_adap_bvalid[1];
-    assign axil_bresp[`getvec(2, C_ADAP1_INDEX)]  = m_axil_adap_bresp[`getvec(2, 1)];
-    assign m_axil_adap_bready[1]                  = axil_bready[C_ADAP1_INDEX];
-    assign m_axil_adap_arvalid[1]                 = axil_arvalid[C_ADAP1_INDEX];
-    assign m_axil_adap_araddr[`getvec(32, 1)]     = axil_adap1_araddr;
-    assign axil_arready[C_ADAP1_INDEX]            = m_axil_adap_arready[1];
-    assign axil_rvalid[C_ADAP1_INDEX]             = m_axil_adap_rvalid[1];
-    assign axil_rdata[`getvec(32, C_ADAP1_INDEX)] = m_axil_adap_rdata[`getvec(32, 1)];
-    assign axil_rresp[`getvec(2, C_ADAP1_INDEX)]  = m_axil_adap_rresp[`getvec(2, 1)];
-    assign m_axil_adap_rready[1]                  = axil_rready[C_ADAP1_INDEX];
-`endif /** DISABLED_CODE_CMAC */
-  end
+//`ifdef DISABLED_CODE_CMAC //ADAP1 and CMAC1 disabled when XXV0
+//    //Note: Disabling CMAC1 when using XXV0 
+//    assign m_axil_cmac_awvalid[1]                 = axil_awvalid[C_CMAC1_INDEX];
+//    assign m_axil_cmac_awaddr[`getvec(32, 1)]     = axil_cmac1_awaddr;
+//    assign axil_awready[C_CMAC1_INDEX]            = m_axil_cmac_awready[1];
+//    assign m_axil_cmac_wvalid[1]                  = axil_wvalid[C_CMAC1_INDEX];
+//    assign m_axil_cmac_wdata[`getvec(32, 1)]      = axil_wdata[`getvec(32, C_CMAC1_INDEX)];
+//    assign axil_wready[C_CMAC1_INDEX]             = m_axil_cmac_wready[1];
+//    assign axil_bvalid[C_CMAC1_INDEX]             = m_axil_cmac_bvalid[1];
+//    assign axil_bresp[`getvec(2, C_CMAC1_INDEX)]  = m_axil_cmac_bresp[`getvec(2, 1)];
+//    assign m_axil_cmac_bready[1]                  = axil_bready[C_CMAC1_INDEX];
+//    assign m_axil_cmac_arvalid[1]                 = axil_arvalid[C_CMAC1_INDEX];
+//    assign m_axil_cmac_araddr[`getvec(32, 1)]     = axil_cmac1_araddr;
+//    assign axil_arready[C_CMAC1_INDEX]            = m_axil_cmac_arready[1];
+//    assign axil_rvalid[C_CMAC1_INDEX]             = m_axil_cmac_rvalid[1];
+//    assign axil_rdata[`getvec(32, C_CMAC1_INDEX)] = m_axil_cmac_rdata[`getvec(32, 1)];
+//    assign axil_rresp[`getvec(2, C_CMAC1_INDEX)]  = m_axil_cmac_rresp[`getvec(2, 1)];
+//    assign m_axil_cmac_rready[1]                  = axil_rready[C_CMAC1_INDEX];
+//
+//    assign m_axil_adap_awvalid[1]                 = axil_awvalid[C_ADAP1_INDEX];
+//    assign m_axil_adap_awaddr[`getvec(32, 1)]     = axil_adap1_awaddr;
+//    assign axil_awready[C_ADAP1_INDEX]            = m_axil_adap_awready[1];
+//    assign m_axil_adap_wvalid[1]                  = axil_wvalid[C_ADAP1_INDEX];
+//    assign m_axil_adap_wdata[`getvec(32, 1)]      = axil_wdata[`getvec(32, C_ADAP1_INDEX)];
+//    assign axil_wready[C_ADAP1_INDEX]             = m_axil_adap_wready[1];
+//    assign axil_bvalid[C_ADAP1_INDEX]             = m_axil_adap_bvalid[1];
+//    assign axil_bresp[`getvec(2, C_ADAP1_INDEX)]  = m_axil_adap_bresp[`getvec(2, 1)];
+//    assign m_axil_adap_bready[1]                  = axil_bready[C_ADAP1_INDEX];
+//    assign m_axil_adap_arvalid[1]                 = axil_arvalid[C_ADAP1_INDEX];
+//    assign m_axil_adap_araddr[`getvec(32, 1)]     = axil_adap1_araddr;
+//    assign axil_arready[C_ADAP1_INDEX]            = m_axil_adap_arready[1];
+//    assign axil_rvalid[C_ADAP1_INDEX]             = m_axil_adap_rvalid[1];
+//    assign axil_rdata[`getvec(32, C_ADAP1_INDEX)] = m_axil_adap_rdata[`getvec(32, 1)];
+//    assign axil_rresp[`getvec(2, C_ADAP1_INDEX)]  = m_axil_adap_rresp[`getvec(2, 1)];
+//    assign m_axil_adap_rready[1]                  = axil_rready[C_ADAP1_INDEX];
+//`endif /** DISABLED_CODE_CMAC */
+  //end
 
   assign m_axil_box1_awvalid                   = axil_awvalid[C_BOX1_INDEX];
   assign m_axil_box1_awaddr                    = axil_box1_awaddr;

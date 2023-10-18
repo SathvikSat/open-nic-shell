@@ -32,9 +32,8 @@
 // needed for synchronization purpose.
 `timescale 1ns/1ps
 //TODO:p2p signals needs to be changed!!!
-//TODO: decoupling master and slave axi streams
 module axi_stream_register_slice #(
-  parameter int TDATA_W = 512,
+  parameter int TDATA_W = 512, //TODO : fix it while instantiate  64 or 512
   parameter int TID_W   = 8,
   parameter int TDEST_W = 4,
   parameter int TUSER_W = 8,

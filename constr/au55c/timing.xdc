@@ -26,11 +26,11 @@ set_false_path -through [get_ports pcie_rstn]
 #        set_max_delay -datapath_only -from $cmac_clk -to $axis_aclk 3.103 
 #    }
 #}
-
+#TODO: note 1/6 is 166.x
 foreach axis_aclk [get_clocks -of_object [get_nets axis_aclk*]] {
     foreach xxv_clk [get_clocks -of_object [get_nets xxv_clk*]] {
         set_max_delay -datapath_only -from $axis_aclk -to $xxv_clk 4.000
-        set_max_delay -datapath_only -from $xxv_clk -to $axis_aclk 3.103 
+        set_max_delay -datapath_only -from $xxv_clk -to $axis_aclk 6.000  
     }
 }
 
@@ -38,7 +38,7 @@ foreach axis_aclk [get_clocks -of_object [get_nets axis_aclk*]] {
 #add_cells_to_pblock [get_pblocks pblock_packet_adapter_tx] [get_cells -quiet {cmac_port*.packet_adapter_inst/tx_inst}]
 #resize_pblock [get_pblocks pblock_packet_adapter_tx] -add {CLOCKREGION_X0Y4:CLOCKREGION_X1Y5}
 
-#TODO: cross check CLOCK_regions
+
 create_pblock pblock_packet_adapter_tx
 add_cells_to_pblock [get_pblocks pblock_packet_adapter_tx] [get_cells -quiet {xxv_port*.packet_adapter_inst/tx_inst}]
 resize_pblock [get_pblocks pblock_packet_adapter_tx] -add {CLOCKREGION_X0Y4:CLOCKREGION_X1Y5}

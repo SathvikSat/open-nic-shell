@@ -275,7 +275,7 @@ qdma_subsystem #(
   `elsif __au55c__
         .ref_clk_100mhz( ref_clk_100mhz_wrap ),
   `endif
-        .axis_aclk( axis_aclk_wrap ) //No comma?
+        .axis_aclk( axis_aclk_wrap ) //TODO: No comma?
 `else
         .axil_aclk(axil_aclk_wrap ),
   `ifdef __au55n__
@@ -574,7 +574,7 @@ assign h2c_byp_out_rdy            = 1'b1;
   always #5000ps ref_clk_100mhz_wrap = ~ref_clk_100mhz_wrap;
 `endif
 
-// TODO: cross verify tReady
+// TODO: cross verify tReady btw adap and 250
   assign axis_qdma_h2c_tvalid                 = s_axis_qdma_h2c_tvalid_wrap;
   assign axis_qdma_h2c_tdata                  = s_axis_qdma_h2c_tdata_wrap;
   assign axis_qdma_h2c_tcrc                   = s_axis_qdma_h2c_tcrc_wrap;

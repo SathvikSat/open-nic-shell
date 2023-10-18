@@ -16,7 +16,6 @@
 //
 // *************************************************************************
 `timescale 1ns/1ps
-//TODO: need to change to packet 161Mhz :xxv_clk
 module box_322mhz #(
   parameter int MIN_PKT_LEN   = 64, 
   parameter int MAX_PKT_LEN   = 1518,
@@ -103,10 +102,8 @@ module box_322mhz #(
   input                          axil_aclk,
   //input      [NUM_CMAC_PORT-1:0] cmac_clk,
   
-  //XXV TODO: xxv_clk handling for packet_adapter and Box at Rx
-  //TODO: xxv_clk unable to access xxv_xlk, cross check this
   //TODO: check if each XXV instance has its own phase-independent clock
-  input      [NUM_XXV_PORT-1:0] xxv_clk
+  input      [NUM_XXV_PORT-1:0] xxv_clk /** 322 Mhz is passed */ 
 
 );
 

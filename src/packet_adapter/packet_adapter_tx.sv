@@ -17,7 +17,8 @@
 // *************************************************************************
 `timescale 1ns/1ps
 module packet_adapter_tx #(
-  parameter int  CMAC_ID     = 0,
+  //parameter int  CMAC_ID     = 0,
+  parameter int  XXV_ID     = 0,
   parameter int  MAX_PKT_LEN = 1518,
   parameter real PKT_CAP     = 1.5
 ) (
@@ -44,7 +45,8 @@ module packet_adapter_tx #(
 
   input                  axis_aclk,
   input                  axil_aresetn,
-  input                  cmac_clk
+  //input                  cmac_clk
+  input                  xxv_clk_322
 );
 
   // FIFO is large enough to fit in at least 1.5 largest packets
@@ -110,7 +112,7 @@ module packet_adapter_tx #(
   endgenerate
 
   // Drop if the destination of an incoming packet is not this CMAC port
-  assign bad_dst  = ((axis_tx_tuser_dst & (16'h1 << (CMAC_ID + 6))) == 0);
+  assign bad_dst  = ((axis_tx_tuser_dst & (16'h1 << (XXV_ID /** CMAC_ID */ + 6))) == 0);
   assign dropping = (~pkt_started && axis_tx_tvalid && axis_tx_tready && bad_dst) || dropping_more;
 
   always @(posedge axis_aclk) begin
@@ -182,7 +184,7 @@ module packet_adapter_tx #(
     .dbiterr_axis       (),
 
     .s_aclk             (axis_aclk),
-    .m_aclk             (cmac_clk),
+    .m_aclk             (xxv_clk_322 /**  cmac_clk */),
     .s_aresetn          (axil_aresetn)
   );
 
